@@ -1,0 +1,45 @@
+﻿本目录存放 Build.ps1 编译出的产品程序、调试符号和编译参数文件。
+
+1. WorkspaceRestorer.exe
+   编译产物（启动恢复器的窗口程序）。Build.ps1 编译成功后把它复制到
+   zuizhongchanwu\WorkspaceRestorer.exe，交付以复制出去的那一份为准。
+
+2. WorkspaceRestorer.pdb
+   调试符号文件（程序数据库），配合 exe 定位出错行号；交付时不需要，可删除。
+
+3. WorkspaceRestorer.rsp
+   csc 响应文件（编译参数清单），记录全部编译开关、引用程序集和参与编译的 .cs 路径。
+   由 Build.ps1 用 UTF-8 带 BOM 写出，仅供 csc 读取，不要手工改。
+
+4. generated\
+   构建时生成的 ProductIdentity.g.cs，内容来自根目录 product.json；
+   由 Build.ps1 生成，随 Build.ps1 -Clean 一起重建，不要手工改。
+
+关键流程：
+  Build.ps1 先确认 csc.exe 和源码目录存在，再生成技术身份常量，把编译参数与 .cs 清单写进 rsp，
+  用 csc @rsp 编译出 WorkspaceRestorer.exe，然后复制成 zuizhongchanwu\WorkspaceRestorer.exe
+  并去掉下载标记。
+  源码里有 App.config 时，还会复制成 zuizhongchanwu\WorkspaceRestorer.exe.config。
+  图标从 zuizhongchanwu\data\图标.ico 嵌进 exe，缺图标只警告、不中断编译。
+
+数据与副作用：
+  这里只有编译产物；exe 运行后读写的是 zuizhongchanwu\data\default，与本目录无关。
+  整个 build 目录已被 .gitignore 排除，不进版本库。
+
+修改注意：
+  本目录由 Build.ps1 生成，Build.ps1 -Clean 会先整目录删除再重建，不要手工放文件进来。
+  本目录的 说明.txt 只在缺失时由 Build.ps1 从 scripts\说明模板 补写，已存在不会被覆盖。
+  不要直接改这里的 exe 或 rsp 来“修问题”，要改 ..\..\src\WorkspaceRestorer 里的源码。
+  generated\ProductIdentity.g.cs 是生成物，改技术名请改根目录 product.json。
+
+验证：
+  yuanwenjian\scripts\Build.ps1 编译通过，yuanwenjian\scripts\Test.ps1 全绿；
+  项数以 接续\当前状态.txt 为准。
+
+相关目录：
+  ..\说明.txt（build 目录总说明）
+  ..\tests（测试程序输出）
+  ..\dev（调试用编译输出）
+  ..\shots（自检截图）
+  ..\..\src\WorkspaceRestorer（产品源码）
+  ..\..\..\zuizhongchanwu（最终交付目录）

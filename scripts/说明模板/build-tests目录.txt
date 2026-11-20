@@ -1,0 +1,41 @@
+﻿本目录存放 Test.ps1 编译出的自动化测试程序与运行结果文件。
+
+1. WorkspaceRestorer.Tests.exe
+   自动化测试程序，由 ..\..\tests\TestRunner 下的测试源码编译而来。
+   运行时必须带一个参数：待测产品程序的路径。
+
+2. WorkspaceRestorer.Tests.rsp
+   csc 响应文件（测试编译参数清单），记录输出路径、引用程序集和测试源码路径。
+   由 Test.ps1 每次写出，不要手工改。
+
+3. 测试失败清单.txt
+   失败项清单。Test.ps1 把测试程序的错误输出（stderr）转存成 UTF-8 文本，
+   每行一条“用例名：原因”；测试全过时该文件为空。
+
+关键流程：
+  Test.ps1 先调 Build.ps1 得到产品 exe，再收集 ..\..\tests 下的 .cs 编译成本目录的测试 exe，
+  然后用临时数据目录启动测试程序，并把产品 exe 路径作为唯一参数传进去。
+  测试程序逐项打印 PASS，全部通过时退出码为 0；有失败时打印 FAIL 并返回 1。
+  Test.ps1 把 stderr 写入 测试失败清单.txt，再核对桌面文件、相关注册表和子进程是否被改动。
+
+数据与副作用：
+  测试数据放在系统临时目录的 WorkspaceRestorer.Tests.<随机串>\data，跑完由 Test.ps1 删除。
+  这里只留测试程序和结果文件；测试进程不写 zuizhongchanwu\data\default，也不改注册表或桌面。
+
+修改注意：
+  本目录由 Test.ps1 生成，不要手工编辑这里的 exe、rsp 或失败清单。
+  本目录的 说明.txt 只在缺失时由 Test.ps1 从 scripts\说明模板 补写，已存在不会被覆盖。
+  失败清单每次运行都会被重写，空文件表示全部通过，不要拿旧清单判断当前结果。
+  程序正在运行、无法覆盖 zuizhongchanwu 里的 exe 时，Test.ps1 可用 -AppPath 指向本目录的 exe 跑测试。
+  要加测试改 ..\..\tests\TestRunner.cs，不要改这里的产物。
+
+验证：
+  yuanwenjian\scripts\Build.ps1 编译通过，yuanwenjian\scripts\Test.ps1 全绿；
+  项数以 接续\当前状态.txt 为准。
+
+相关目录：
+  ..\说明.txt（build 目录总说明）
+  ..\app（产品编译输出）
+  ..\dev（调试用编译输出）
+  ..\..\tests（测试源码与 TestRunner.cs）
+  ..\..\scripts\Test.ps1（测试脚本）

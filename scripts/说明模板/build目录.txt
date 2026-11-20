@@ -1,0 +1,47 @@
+﻿本目录是构建产物目录，由 yuanwenjian\scripts 下的脚本自动生成，可以整份删除。
+
+1. app\
+   产品编译输出，放主程序、调试符号和编译参数文件，详情见该目录自己的 说明.txt。
+
+2. tests\
+   自动化测试编译输出，放测试程序和测试失败清单，详情见该目录自己的 说明.txt。
+
+3. dev\
+   调试用的另一份编译输出（WorkspaceRestorer.exe 与 pdb 调试符号），
+   以及对应的 dev.rsp（csc 响应文件，记录编译参数与源码路径）。
+   它只是手动构建留下的临时副本，交付不使用，可随时删除。
+
+4. shots\
+   真机自检探针的截图存档（png 图片），由 scripts 下的 SelfCheck 探针写入。
+   只用于人工核对界面，程序不依赖，可随时删除。
+
+5. newtail.txt
+   待并入源码的 C# 代码片段（纯文本草稿），扩展名是 txt，不参与任何编译。
+   并入 src 后即可删除，不要把它当成正式源码。
+
+关键流程：
+  Build.ps1 递归收集 src\WorkspaceRestorer 下的 .cs，写成 app\WorkspaceRestorer.rsp，
+  再调 .NET Framework 的 csc.exe 编译成 app\WorkspaceRestorer.exe，最后复制到 zuizhongchanwu。
+  Test.ps1 先调 Build.ps1，再把 yuanwenjian\tests\TestRunner 下的 .cs 编译成 tests\WorkspaceRestorer.Tests.exe，
+  用临时数据目录运行测试，并把失败项写入 tests\测试失败清单.txt。
+
+数据与副作用：
+  本目录只存放编译与自检产生的文件，程序运行读写的是 zuizhongchanwu\data，不会回写这里。
+  整个目录已被 .gitignore 排除，不进版本库，也不随交付物发布。
+
+修改注意：
+  build 是生成目录，不要手工编辑里面的程序、rsp 或说明文件。
+  build 与 app 的 说明.txt 由 Build.ps1 在缺失时从 scripts\说明模板 补写，
+  tests 的 说明.txt 由 Test.ps1 在缺失时补写；已经存在的说明不会被覆盖。
+  Build.ps1 -Clean 只清空 app 目录，dev、shots 和这里的草稿需要自己清理。
+  不要把源码、下载物或截图放进 app，也不要把这里的产物当源码改。
+
+验证：
+  yuanwenjian\scripts\Build.ps1 编译通过，yuanwenjian\scripts\Test.ps1 全绿；
+  项数以 接续\当前状态.txt 为准。
+
+相关目录：
+  ..\src\WorkspaceRestorer（产品源码）
+  ..\scripts（构建、测试与自检脚本）
+  ..\tests（自动化测试源码）
+  ..\..\zuizhongchanwu（交付给用户的最终程序与数据）
