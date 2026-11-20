@@ -1,8 +1,19 @@
 # WorkspaceRestorer
 
-Windows 10/11 本地桌面工作区工具：保存并恢复工作会话，管理开机自启动方案，按显示器拓扑保存桌面图标布局，并用回收站兜底误删。不依赖云服务。
+适用于 Windows 10/11 x64 的免安装电脑桌面工作区工具，可保存和恢复工作会话、管理开机自启动方案、按显示器布局保存和恢复桌面图标位置，并用回收站降低误删风险。不依赖云服务。
 
 [English](README.md) | [简体中文](README.zh-CN.md)
+
+## 下载
+
+[查看最新发行版](https://github.com/lix996/WorkspaceRestorer/releases/latest)
+
+| 系统 | 类型 | 下载 |
+| --- | --- | --- |
+| Windows 10/11 x64 | 免安装版 | [WorkspaceRestorer-v1.0.0-windows-x64.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64.zip) |
+| Windows 10/11 x64 | 免安装版 | [WorkspaceRestorer-v1.0.0-windows-x64-zh.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64-zh.zip) |
+
+> 免安装版，解压后运行 `WorkspaceRestorer.exe`。不带 `-zh` 的包使用英文数据目录名，带 `-zh` 的包使用中文数据目录名。
 
 ## 功能
 
