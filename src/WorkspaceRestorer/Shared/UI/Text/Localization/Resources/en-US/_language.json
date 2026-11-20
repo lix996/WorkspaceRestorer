@@ -1,0 +1,9 @@
+{
+  "tag": "en-US",
+  "nativeName": "English",
+  "englishName": "English (United States)",
+  "fallback": "zh-CN",
+  "uiReady": true,
+  "order": 20,
+  "plural": "oneOther"
+}

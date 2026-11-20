@@ -1,0 +1,9 @@
+{
+  "tag": "zh-CN",
+  "nativeName": "中文（简体）",
+  "englishName": "Chinese (Simplified)",
+  "fallback": "zh-CN",
+  "uiReady": true,
+  "order": 10,
+  "plural": "none"
+}
