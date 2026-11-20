@@ -1,0 +1,3 @@
+# Windows-only project: keep original bytes (UTF-8 BOM / CRLF)
+* -text
+*.ico binary

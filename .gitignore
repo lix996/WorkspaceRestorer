@@ -1,0 +1,28 @@
+# 发布白名单：默认忽略一切，只放行下面这些
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/LICENSE
+!/PUBLISH.md
+!/product.json
+!/src/
+!/tests/
+!/variants/
+!/assets/
+!/scripts/
+
+# 构建目录和自检截图
+/build/
+/selfcheck-shots/
+/tests/.sandbox/
+
+# scripts 只发布构建/测试需要的几个
+/scripts/*
+!/scripts/Build.ps1
+!/scripts/Test.ps1
+!/scripts/Test-IdentityConsistency.ps1
+!/scripts/说明模板/
+
+# 目录说明文件不上传
+说明.txt
