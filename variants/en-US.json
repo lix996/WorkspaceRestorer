@@ -1,0 +1,23 @@
+{
+  "variant": "en-US",
+  "displayName": "English",
+  "deliveryFolder": "zuizhongchanwu",
+  "folders": {
+    "workflows": "workflows",
+    "startupRestore": "StartupRestore",
+    "desktopLayout": "DesktopLayout",
+    "applications": "Applications",
+    "startupProfiles": "StartupProfiles",
+    "layouts": "Layouts",
+    "applicationPlans": "ApplicationPlans",
+    "recycleBin": "RecycleBin",
+    "settings": "Settings",
+    "logs": "Logs",
+    "backup": "Backup",
+    "temp": "Temp",
+    "autoRestore": "AutoRestore",
+    "startupProfileBackups": "StartupProfileBackups",
+    "legacy": "Legacy",
+    "unrecognized": "Unrecognized"
+  }
+}

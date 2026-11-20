@@ -1,0 +1,23 @@
+{
+  "variant": "zh-CN",
+  "displayName": "中文",
+  "deliveryFolder": "zuizhongchanwu-zh",
+  "folders": {
+    "workflows": "workflows",
+    "startupRestore": "启动与恢复",
+    "desktopLayout": "图标位置保存",
+    "applications": "自启动应用",
+    "startupProfiles": "工作方案",
+    "layouts": "布局",
+    "applicationPlans": "自启动方案",
+    "recycleBin": "回收站",
+    "settings": "设置",
+    "logs": "日志",
+    "backup": "备份",
+    "temp": "临时",
+    "autoRestore": "启动程序后自动恢复",
+    "startupProfileBackups": "工作方案备份",
+    "legacy": "搬家前的旧文件",
+    "unrecognized": "无法识别"
+  }
+}
