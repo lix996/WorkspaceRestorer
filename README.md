@@ -11,7 +11,7 @@ A portable desktop workspace tool for Windows 10/11 x64. It can save and restore
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[Download](#download) · [Features](#features) · [Usage](#usage) · [Build from source](#build-from-source) · [License](#license)
+[Download](#download) · [Features](#features) · [Usage](#usage) · [SmartScreen](#windows-smartscreen) · [Build from source](#build-from-source) · [License](#license)
 
 </div>
 
@@ -38,6 +38,15 @@ Get the latest version from [GitHub Releases](https://github.com/lix996/Workspac
 1. Download and extract the matching zip.
 2. Run `WorkspaceRestorer.exe`; the first launch creates a `data` directory next to it.
 3. To migrate, keep the `data` directory.
+
+## Windows SmartScreen
+
+The executable is unsigned. On first launch, Windows may show **Windows protected your PC**. This is a SmartScreen reputation warning, not a virus detection. Only continue if you downloaded the file from this repository and its SHA-256 matches the checksum on the release page.
+
+1. Click **More info**.
+2. Click **Run anyway**.
+
+If you downloaded the zip, you can also right-click the zip → **Properties** → **Unblock** before extracting. This only affects the current PC; removing the warning for all users requires code signing.
 
 ## Build from source
 

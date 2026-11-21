@@ -11,7 +11,7 @@
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[下载](#下载) · [功能](#功能) · [使用](#使用) · [从源码构建](#从源码构建) · [许可证](#许可证)
+[下载](#下载) · [功能](#功能) · [使用](#使用) · [SmartScreen](#windows-smartscreen) · [从源码构建](#从源码构建) · [许可证](#许可证)
 
 </div>
 
@@ -38,6 +38,15 @@
 1. 下载并解压对应 zip。
 2. 运行 `WorkspaceRestorer.exe`；首次运行会在同目录创建 `data` 数据目录。
 3. 需要迁移时，保留 `data` 目录即可。
+
+## Windows SmartScreen
+
+程序没有代码签名。首次运行可能出现“Windows 已保护你的电脑”。这是 SmartScreen 对未签名、低信誉程序的提示，不是报毒。请确认文件来自本仓库，且 SHA-256 与 Release 页面上的校验和一致后再继续。
+
+1. 点“更多信息”；
+2. 点“仍要运行”。
+
+如果下载的是 zip，也可以先右键 zip → **属性** → 勾选“**解除锁定**”，再解压运行。这个设置只对当前电脑有效；要让所有用户都不再看到提示，需要对 exe 做代码签名。
 
 ## 从源码构建
 
