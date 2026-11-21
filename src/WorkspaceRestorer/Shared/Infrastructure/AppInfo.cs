@@ -3,8 +3,8 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("Workspace Restorer")]
 [assembly: AssemblyProduct("Workspace Restorer")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCompany("lix996")]
+[assembly: AssemblyCopyright("Copyright (c) 2026 lix996")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: AssemblyInformationalVersion("1.0.0")]
@@ -19,14 +19,12 @@ namespace WorkspaceRestorer.Infrastructure
     {
         public const string Version = "1.0.0";
 
-        /// <summary>作者署名先留空；关于页显示“未配置”。</summary>
-        public const string AuthorName = "";
+        /// <summary>作者署名和公开邮箱；关于页会显示并启用“写邮件”。</summary>
+        public const string AuthorName = "lix996";
+        public const string AuthorEmail = "chenmi9906@gmail.com";
 
-        /// <summary>作者邮箱先留空；写邮件按钮会置灰。</summary>
-        public const string AuthorEmail = "";
-
-        /// <summary>GitHub 仓库先留空；检查更新和 GitHub 按钮会置灰。</summary>
-        public const string GitHubRepositoryUrl = "";
+        /// <summary>GitHub 仓库；项目主页、检查更新和 Releases 入口共用这个值。</summary>
+        public const string GitHubRepositoryUrl = "https://github.com/lix996/WorkspaceRestorer";
 
         public static bool IsGitHubConfigured
         {

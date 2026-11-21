@@ -30,6 +30,7 @@ namespace WorkspaceRestorer.Tests
                 AssertEqual("About", AppText.T(AboutTextKeys.Title));
                 AssertEqual("v1.0.0", AppText.F(AboutTextKeys.VersionFormat, AppInfo.Version));
                 AssertEqual("Not configured", AppText.T(AboutTextKeys.NotConfigured));
+                AssertEqual("Opened your default mail app.", AppText.T(AboutTextKeys.EmailOpened));
                 AssertEqual(0, AppText.MissingKeys.Count);
                 AssertEqual("en-US", AppText.CurrentLanguage.Tag);
                 Assert(LanguageCatalog.All().Count >= 2, "至少应发现中文和英文两个语言目录。");
@@ -157,9 +158,19 @@ namespace WorkspaceRestorer.Tests
                 AssertEqual("Startup Apps", AppText.T(ApplicationsTextKeys.PageTitle));
                 AssertEqual("Scan Desktop", AppText.T(ApplicationsTextKeys.ScanDesktop));
                 AssertEqual("Startup Plan", AppText.T(ApplicationsTextKeys.PlanNameFallback));
+                AssertEqual("No startup plans yet",
+                    AppText.T(ApplicationsTextKeys.PageEmptyHeading));
+                Assert(
+                    AppText.T(ApplicationsTextKeys.PageEmptyHint).Contains("Settings"),
+                    "英文空状态说明应指向 Settings。");
                 AssertEqual(0, AppText.MissingKeys.Count);
                 AppText.Initialize(LanguageTags.ZhCn);
                 AssertEqual("自启动应用", AppText.T(ApplicationsTextKeys.PageTitle));
+                AssertEqual("还没有自启动方案",
+                    AppText.T(ApplicationsTextKeys.PageEmptyHeading));
+                Assert(
+                    AppText.T(ApplicationsTextKeys.PageEmptyHint).Contains("设置"),
+                    "中文空状态说明应指向设置。");
             });
 
             Run("本地化：公共对话框、搜索和文本菜单 key", delegate
@@ -278,13 +289,19 @@ namespace WorkspaceRestorer.Tests
                 ThemePalette.Apply(false);
             });
 
-            Run("检查更新：未配置 GitHub 时不访问网络", delegate
+            Run("检查更新：已配置 GitHub，测试模式不访问网络", delegate
             {
-                Assert(!UpdateChecker.IsConfigured, "GitHub 地址为空时不应配置检查更新。");
+                Assert(UpdateChecker.IsConfigured, "GitHub 地址已配置，应启用检查更新。");
                 UpdateResult result = UpdateChecker.Check("1.0.0");
-                AssertEqual("NotConfigured", result.Outcome.ToString());
+                AssertEqual("Suppressed", result.Outcome.ToString());
                 AssertEqual("1.0.0", UpdateChecker.NormalizeVersion("v1.0.0"));
                 AssertEqual("1.2.3", UpdateChecker.NormalizeVersion("v1.2.3-beta"));
+                Assert(GitHubReleaseSource.IsRateLimited("0", string.Empty),
+                    "X-RateLimit-Remaining=0 应识别为限流。");
+                Assert(GitHubReleaseSource.IsRateLimited("57", "API rate limit exceeded"),
+                    "GitHub 限流正文应识别为限流。");
+                Assert(!GitHubReleaseSource.IsRateLimited("57", string.Empty),
+                    "仍有配额时不能误报限流。");
             });
 
             Run("可选文字：TextBlock 选择、全选、清空和换文字", delegate
@@ -524,6 +541,16 @@ namespace WorkspaceRestorer.Tests
                     window.UpdateLayout();
                     Assert(FindButtonByAutomationName(window, "检查更新") != null,
                         "关于页没有显示检查更新按钮。");
+                    Button githubButton = FindButtonByAutomationName(window, "打开 GitHub 项目主页");
+                    Button emailButton = FindButtonByAutomationName(window, "写邮件");
+                    Assert(githubButton != null, "关于页没有显示 GitHub 项目主页按钮。");
+                    Assert(emailButton != null, "关于页没有显示写邮件按钮。");
+                    Assert(!string.IsNullOrWhiteSpace(
+                        AutomationProperties.GetHelpText(githubButton)),
+                        "GitHub 项目主页按钮缺少可访问提示。");
+                    Assert(!string.IsNullOrWhiteSpace(
+                        AutomationProperties.GetHelpText(emailButton)),
+                        "写邮件按钮缺少可访问提示。");
                     Assert(!ContainsText(window, "数据目录"),
                         "关于页不应显示数据目录。");
                     Console.WriteLine("关于页截图：" + SaveWindowScreenshot(window, "csk-about-smoke.png"));

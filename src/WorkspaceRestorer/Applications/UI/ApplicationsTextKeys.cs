@@ -7,6 +7,8 @@
         public const string PageSubtitle = "applications.page.subtitle";
         /// <summary>标题下只显示一句话，完整说明在问号里（见 PageSubtitle）。</summary>
         public const string PageShort = "applications.page.short";
+        public const string PageEmptyHeading = "applications.page.emptyHeading";
+        public const string PageEmptyHint = "applications.page.emptyHint";
 
         public const string ScanDesktop = "applications.action.scanDesktop";
         public const string AddSelectedToStartup = "applications.action.addSelectedToStartup";
@@ -110,7 +112,6 @@
         public const string StatusChildCreatedPlanFormat = "applications.status.childCreatedPlanFormat";
         public const string StatusEmptyTarget = "applications.status.emptyTarget";
 
-        public const string EmptyPlansHint = "applications.card.emptyPlansHint";
         public const string DragSwitchTip = "applications.card.dragSwitchTip";
         public const string StatusMovedIntoFormat = "applications.status.movedIntoFormat";
         public const string UndoMovedIntoFormat = "applications.undo.movedIntoFormat";

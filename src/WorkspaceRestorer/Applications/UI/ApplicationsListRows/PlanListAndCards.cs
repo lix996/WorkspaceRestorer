@@ -43,18 +43,26 @@ namespace WorkspaceRestorer.UI
             // 顺带把还挂在旧行上的插入线收掉（重建后再画会落到已废弃的元素里）。
             ClearDesktopInsertLine();
             IList<ApplicationPlan> plans = controller.ApplicationPlans;
-            if (desktopPlanScroll != null)
-            {
-                desktopPlanScroll.Visibility = plans == null || plans.Count == 0
-                    ? Visibility.Collapsed
-                    : Visibility.Visible;
-            }
             if (plans == null || plans.Count == 0)
             {
-                applicationPlanHost.Children.Add(UiFactory.SupportingText(
-                    // 【2026-10-19 用户要求】工具栏的「新建空白方案」按钮删掉了（右键菜单保留）。
-                    // 这行提示必须跟着改，不能再指着一个不存在的按钮。
-                    AppText.T(ApplicationsTextKeys.EmptyPlansHint)));
+                // 和「启动与恢复」一样：没有方案时不要只藏起列表，
+                // 而是在列表位置给出标题 + 完整入口说明，避免用户面对一块空白。
+                Border empty = new Border
+                {
+                    Background = AppTheme.PanelSurface,
+                    BorderBrush = AppTheme.Border,
+                    BorderThickness = new Thickness(1),
+                    Padding = new Thickness(14),
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                StackPanel emptyContent = new StackPanel();
+                emptyContent.Children.Add(UiFactory.HeadingKey(
+                    ApplicationsTextKeys.PageEmptyHeading,
+                    14));
+                emptyContent.Children.Add(UiFactory.SupportingTextKey(
+                    ApplicationsTextKeys.PageEmptyHint));
+                empty.Child = emptyContent;
+                applicationPlanHost.Children.Add(empty);
                 return;
             }
             ApplicationPlan active = controller.ActiveApplicationPlan;

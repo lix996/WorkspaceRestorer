@@ -24,6 +24,11 @@
         public const string NotChecked = "settings.about.notChecked";
         public const string GitHub = "settings.about.github";
         public const string WriteEmail = "settings.about.writeEmail";
+        public const string GitHubHint = "settings.about.githubHint";
+        public const string WriteEmailHint = "settings.about.writeEmailHint";
+        public const string GitHubOpened = "settings.about.githubOpened";
+        public const string EmailOpened = "settings.about.emailOpened";
+        public const string OpenFailedFormat = "settings.about.openFailedFormat";
         public const string Checking = "settings.about.checking";
         public const string UpToDate = "settings.about.upToDate";
         public const string UpdateAvailableFormat = "settings.about.updateAvailableFormat";

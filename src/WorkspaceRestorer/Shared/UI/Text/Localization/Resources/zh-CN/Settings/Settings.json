@@ -1,4 +1,4 @@
-{
+﻿{
   "settings.page.title": "设置",
   "settings.page.subtitle": "总设置与各工作区的设置。",
 
@@ -197,6 +197,11 @@
   "settings.about.notChecked": "尚未检查",
   "settings.about.github": "打开 GitHub 项目主页",
   "settings.about.writeEmail": "写邮件",
+  "settings.about.githubHint": "在浏览器中打开项目仓库。",
+  "settings.about.writeEmailHint": "打开默认邮件应用给作者写信。",
+  "settings.about.githubOpened": "已在浏览器中打开项目主页。",
+  "settings.about.emailOpened": "已打开默认邮件应用。",
+  "settings.about.openFailedFormat": "打开失败：{0}",
   "settings.about.checking": "正在检查…",
   "settings.about.upToDate": "已是最新版本（{0}）。",
   "settings.about.updateAvailableFormat": "发现新版本 {0}。",

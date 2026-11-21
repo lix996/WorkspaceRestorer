@@ -1,7 +1,9 @@
-{
+﻿{
   "applications.page.title": "Startup Apps",
   "applications.page.subtitle": "Manage which apps, folders and web pages start with Windows. Click Scan Desktop and pick icons, use Browse for files, or use Choose Folder; selected items go straight into the plan and stay there.",
   "applications.page.short": "Manage the apps, folders and web pages that start with Windows.",
+  "applications.page.emptyHeading": "No startup plans yet",
+  "applications.page.emptyHint": "Set the new startup plan name in Settings → Startup Apps first. Then click Scan Desktop, check items and click Add Checked Items, or use Browse… / Choose Folder… to add items directly; the first item creates a plan with that name. You can also right-click empty space and choose New Blank Plan.",
 
   "applications.action.scanDesktop": "Scan Desktop",
   "applications.action.addSelectedToStartup": "Add to Startup & Restore",
@@ -104,7 +106,6 @@
   "applications.status.childCreatedPlanFormat": "Created child plan: {0}",
   "applications.status.emptyTarget": "Nothing was entered. Type a path or URL in the dialog, then click Add.",
 
-  "applications.card.emptyPlansHint": "There is no startup plan yet. Set the new startup plan name in Settings → Startup Apps first, then right-click empty space and choose New Blank Plan.",
   "applications.card.dragSwitchTip": "Switch current startup plan",
   "applications.status.movedIntoFormat": "Moved \"{0}\" into \"{1}\" as its child plan (Ctrl+Z undoes this).",
   "applications.undo.movedIntoFormat": "Move into startup plan: \"{0}\" → \"{1}\"",

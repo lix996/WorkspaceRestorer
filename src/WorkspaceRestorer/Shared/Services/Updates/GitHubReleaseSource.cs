@@ -36,12 +36,47 @@ namespace WorkspaceRestorer.Services.Updates
             }
 
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
+            // 系统代理可能被代理服务商限流，或返回不属于 GitHub 的 403。
+            // 如果代理失败，再走一次直连；两条路都失败才把两边的原因一起报出来。
+            string proxyError = null;
+            IWebProxy systemProxy = GetSystemProxy(apiUrl);
+            if (systemProxy != null)
+            {
+                try
+                {
+                    return Fetch(apiUrl, systemProxy);
+                }
+                catch (InvalidOperationException exception)
+                {
+                    proxyError = exception.Message;
+                }
+            }
+
+            try
+            {
+                return Fetch(apiUrl, null);
+            }
+            catch (InvalidOperationException exception)
+            {
+                if (string.IsNullOrWhiteSpace(proxyError))
+                {
+                    throw;
+                }
+                throw new InvalidOperationException(
+                    "系统代理：" + proxyError + "；直连：" + exception.Message);
+            }
+        }
+
+        private static UpdateRelease Fetch(string apiUrl, IWebProxy proxy)
+        {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(apiUrl);
             request.Method = "GET";
             request.UserAgent = "WorkspaceRestorer/" + AppInfo.Version;
             request.Accept = "application/vnd.github+json";
             request.Timeout = 10000;
             request.ReadWriteTimeout = 10000;
+            request.Proxy = proxy;
 
             try
             {
@@ -70,22 +105,99 @@ namespace WorkspaceRestorer.Services.Updates
             }
             catch (WebException exception)
             {
-                HttpWebResponse response = exception.Response as HttpWebResponse;
-                if (response != null)
+                throw DescribeRequestFailure(exception);
+            }
+        }
+
+        private static InvalidOperationException DescribeRequestFailure(WebException exception)
+        {
+            HttpWebResponse response = exception.Response as HttpWebResponse;
+            if (response == null)
+            {
+                return new InvalidOperationException("无法连接 GitHub：" + exception.Message);
+            }
+
+            using (response)
+            {
+                int status = (int)response.StatusCode;
+                string body = ReadResponseBody(response);
+                if (status == 404)
                 {
-                    int status = (int)response.StatusCode;
-                    response.Close();
-                    if (status == 404)
-                    {
-                        throw new InvalidOperationException("GitHub 仓库或 Release 不存在。");
-                    }
-                    if (status == 403)
-                    {
-                        throw new InvalidOperationException("GitHub 请求被限流，请稍后再试。");
-                    }
-                    throw new InvalidOperationException("GitHub 返回 HTTP " + status + "。");
+                    return new InvalidOperationException("GitHub 仓库或 Release 不存在。");
                 }
-                throw new InvalidOperationException("无法连接 GitHub：" + exception.Message);
+                if (status == 403)
+                {
+                    if (IsRateLimited(
+                        response.Headers["X-RateLimit-Remaining"],
+                        body))
+                    {
+                        return new InvalidOperationException("GitHub 请求被限流，请稍后再试。");
+                    }
+                    return new InvalidOperationException(
+                        "GitHub 返回 HTTP 403（可能是网络代理拦截），请检查网络或代理。");
+                }
+                return new InvalidOperationException("GitHub 返回 HTTP " + status + "。");
+            }
+        }
+
+        private static IWebProxy GetSystemProxy(string apiUrl)
+        {
+            try
+            {
+                IWebProxy proxy = WebRequest.GetSystemWebProxy();
+                if (proxy == null || proxy.IsBypassed(new Uri(apiUrl)))
+                {
+                    return null;
+                }
+                WebProxy webProxy = proxy as WebProxy;
+                if (webProxy != null && webProxy.Address == null)
+                {
+                    return null;
+                }
+                return proxy;
+            }
+            catch
+            {
+                // 读代理设置失败时不能挡住直连。
+                return null;
+            }
+        }
+
+        /// <summary>GitHub 限流会带 X-RateLimit-Remaining: 0；其他 403 更可能是代理拦截。</summary>
+        internal static bool IsRateLimited(string remaining, string responseBody)
+        {
+            if (string.Equals(
+                (remaining ?? string.Empty).Trim(),
+                "0",
+                StringComparison.Ordinal))
+            {
+                return true;
+            }
+            return !string.IsNullOrEmpty(responseBody)
+                && responseBody.IndexOf("rate limit", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string ReadResponseBody(HttpWebResponse response)
+        {
+            try
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    if (stream == null)
+                    {
+                        return string.Empty;
+                    }
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        char[] buffer = new char[2048];
+                        int count = reader.Read(buffer, 0, buffer.Length);
+                        return count > 0 ? new string(buffer, 0, count) : string.Empty;
+                    }
+                }
+            }
+            catch
+            {
+                return string.Empty;
             }
         }
 

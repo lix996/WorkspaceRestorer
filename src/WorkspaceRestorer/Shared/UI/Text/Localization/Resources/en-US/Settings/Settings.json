@@ -1,4 +1,4 @@
-{
+﻿{
   "settings.page.title": "Settings",
   "settings.page.subtitle": "General and workspace settings.",
 
@@ -197,6 +197,11 @@
   "settings.about.notChecked": "Not checked yet",
   "settings.about.github": "Open GitHub Repository",
   "settings.about.writeEmail": "Email Author",
+  "settings.about.githubHint": "Open the project repository in your browser.",
+  "settings.about.writeEmailHint": "Open your default mail app to email the author.",
+  "settings.about.githubOpened": "Opened the project repository in your browser.",
+  "settings.about.emailOpened": "Opened your default mail app.",
+  "settings.about.openFailedFormat": "Could not open: {0}",
   "settings.about.checking": "Checking...",
   "settings.about.upToDate": "You are up to date ({0}).",
   "settings.about.updateAvailableFormat": "Version {0} is available.",

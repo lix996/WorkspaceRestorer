@@ -42,7 +42,7 @@ git remote add origin https://github.com/lix996/WorkspaceRestorer.git
 git push -u origin main
 ```
 
-这次从旧根目录结构改成“本目录就是仓库根”，远程只有一个旧提交，用 `git push --force -u origin main` 覆盖即可。
+这次从旧根目录结构改成“本目录就是仓库根”的迁移已经完成；下面这段只留档，不要再次执行 `--force`。
 
 旧仓库备份在外层项目根：`.git-root-20261121`、`.git-old-20260918`，都不发布。
 
@@ -61,7 +61,30 @@ git push
 
 1. 构建英文：`powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1`
 2. 构建中文：`powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Variant zh-CN`
-3. 在 GitHub 的 Releases 新建 tag（例如 `v1.0.0`），上传两个 exe；exe 不提交进仓库。
+3. 打包两个 zip：只放 `WorkspaceRestorer.exe` 和 `data\app.ico`，不要带 `data\default`、设置、日志或备份。
+
+   ```text
+   WorkspaceRestorer-v1.0.0-windows-x64.zip
+     WorkspaceRestorer-v1.0.0\WorkspaceRestorer.exe
+     WorkspaceRestorer-v1.0.0\data\app.ico
+
+   WorkspaceRestorer-v1.0.0-windows-x64-zh.zip
+     WorkspaceRestorer-v1.0.0-zh\WorkspaceRestorer.exe
+     WorkspaceRestorer-v1.0.0-zh\data\app.ico
+   ```
+
+4. 在 GitHub 的 Releases 新建 tag（例如 `v1.0.0`），上传两个 zip；exe 和 zip 都不提交进仓库。
+5. `AppInfo.Version`、zip 文件名、内层目录名和 Release tag 必须保持一致。
+
+### 重新发布同一版本
+
+同一版本号需要替换安装包时：
+
+- 不要删、不要移动已有 tag；
+- 编辑已有 Release，不要新建另一个同名 tag；
+- GitHub 不允许同名 asset 覆盖：先删旧 zip，再上传同名新 zip；
+- 更新 Release 正文里的 SHA-256；
+- Release URL 和 README 下载链接保持不变，旧 asset 的下载数会重新计数。
 
 ## 注意
 

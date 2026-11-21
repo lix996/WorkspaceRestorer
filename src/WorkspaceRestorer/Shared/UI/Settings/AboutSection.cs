@@ -388,7 +388,7 @@ namespace WorkspaceRestorer.UI
                     TooltipDefinition.Named(
                         AboutTextKeys.GitHub,
                         AboutTextKeys.GitHub,
-                        null,
+                        AboutTextKeys.GitHubHint,
                         null));
                 github.Click += delegate { OpenGitHub(); };
                 links.Children.Add(github);
@@ -403,7 +403,7 @@ namespace WorkspaceRestorer.UI
                     TooltipDefinition.Named(
                         AboutTextKeys.WriteEmail,
                         AboutTextKeys.WriteEmail,
-                        null,
+                        AboutTextKeys.WriteEmailHint,
                         null));
                 email.Click += delegate { OpenEmail(); };
                 links.Children.Add(email);
@@ -453,12 +453,20 @@ namespace WorkspaceRestorer.UI
                 return;
             }
             ShellOpenResult result = ShellOpener.Open(AppInfo.GitHubRepositoryUrl);
-            if (!result.Success)
+            if (result.WasSuppressed)
+            {
+                return;
+            }
+            if (result.Success)
             {
                 SetUpdateStatus(
-                    AppText.F(AboutTextKeys.CheckFailedFormat, result.Error),
-                    AppTheme.Danger);
+                    AppText.T(AboutTextKeys.GitHubOpened),
+                    AppTheme.Positive);
+                return;
             }
+            SetUpdateStatus(
+                AppText.F(AboutTextKeys.OpenFailedFormat, result.Error),
+                AppTheme.Danger);
         }
 
         private void OpenEmail()
@@ -468,12 +476,20 @@ namespace WorkspaceRestorer.UI
                 return;
             }
             ShellOpenResult result = ShellOpener.Open("mailto:" + AppInfo.AuthorEmail);
-            if (!result.Success)
+            if (result.WasSuppressed)
+            {
+                return;
+            }
+            if (result.Success)
             {
                 SetUpdateStatus(
-                    AppText.F(AboutTextKeys.CheckFailedFormat, result.Error),
-                    AppTheme.Danger);
+                    AppText.T(AboutTextKeys.EmailOpened),
+                    AppTheme.Positive);
+                return;
             }
+            SetUpdateStatus(
+                AppText.F(AboutTextKeys.OpenFailedFormat, result.Error),
+                AppTheme.Danger);
         }
 
         private async void CheckForUpdatesAsync()

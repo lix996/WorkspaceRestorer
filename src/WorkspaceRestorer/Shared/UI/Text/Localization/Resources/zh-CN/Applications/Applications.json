@@ -1,7 +1,9 @@
-{
+﻿{
   "applications.page.title": "自启动应用",
   "applications.page.subtitle": "这里管的是“开机时自动启动哪些应用 / 文件夹 / 网页”：点“扫描桌面”看着图标挑，点“浏览…”挑文件、点“挑文件夹…”挑文件夹，选完就直接进方案，它们就固定在这个方案里常驻。",
   "applications.page.short": "管理开机时自动启动的应用、文件夹和网页。",
+  "applications.page.emptyHeading": "还没有自启动方案",
+  "applications.page.emptyHint": "先到 设置 → 自启动应用 里设好“新自启动方案名”，再点“扫描桌面”勾选项目并“添加选中的项目”，或点“浏览…”/“挑文件夹…”直接添加；第一次添加时会按这个名字自动建方案。也可以右键空白处选“新建空白方案”。",
 
   "applications.action.scanDesktop": "扫描桌面",
   "applications.action.addSelectedToStartup": "加入启动与恢复",
@@ -104,7 +106,6 @@
   "applications.status.childCreatedPlanFormat": "已新建子方案：{0}",
   "applications.status.emptyTarget": "什么都没输入：对话框里填一个路径或网址再点“新增”。",
 
-  "applications.card.emptyPlansHint": "还没有自启动方案：先到 设置 → 自启动应用 里设好“新自启动方案名”，再在空白处右键选“新建空白方案”。",
   "applications.card.dragSwitchTip": "切换当前自启动方案",
   "applications.status.movedIntoFormat": "已把“{0}”移入“{1}”，成为它的子方案（Ctrl+Z 可撤销）。",
   "applications.undo.movedIntoFormat": "移入自启动方案：“{0}” → “{1}”",
