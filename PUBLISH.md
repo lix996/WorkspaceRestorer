@@ -61,16 +61,20 @@ git push
 
 1. 构建英文：`powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1`
 2. 构建中文：`powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Variant zh-CN`
-3. 打包两个 zip：只放 `WorkspaceRestorer.exe` 和 `data\app.ico`，不要带 `data\default`、设置、日志或备份。
+3. 打包两个 zip：放 `WorkspaceRestorer.exe`、`data\app.ico`、`LICENSE` 和 `SOURCE.txt`，不要带 `data\default`、设置、日志或备份。
 
    ```text
    WorkspaceRestorer-v1.0.0-windows-x64.zip
      WorkspaceRestorer-v1.0.0\WorkspaceRestorer.exe
      WorkspaceRestorer-v1.0.0\data\app.ico
+     WorkspaceRestorer-v1.0.0\LICENSE
+     WorkspaceRestorer-v1.0.0\SOURCE.txt
 
    WorkspaceRestorer-v1.0.0-windows-x64-zh.zip
      WorkspaceRestorer-v1.0.0-zh\WorkspaceRestorer.exe
      WorkspaceRestorer-v1.0.0-zh\data\app.ico
+     WorkspaceRestorer-v1.0.0-zh\LICENSE
+     WorkspaceRestorer-v1.0.0-zh\SOURCE.txt
    ```
 
 4. 在 GitHub 的 Releases 新建 tag（例如 `v1.0.0`），上传两个 zip；exe 和 zip 都不提交进仓库。

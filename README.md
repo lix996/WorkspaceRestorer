@@ -24,7 +24,7 @@ Get the latest version from [GitHub Releases](https://github.com/lix996/Workspac
 | Windows 10/11 x64 | Portable | [WorkspaceRestorer-v1.0.0-windows-x64.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64.zip) |
 | Windows 10/11 x64 | Portable | [WorkspaceRestorer-v1.0.0-windows-x64-zh.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64-zh.zip) |
 
-> Portable. Extract and run `WorkspaceRestorer.exe`. The package without `-zh` uses English data directory names; the `-zh` package uses Chinese data directory names.
+> Portable. Extract and run `WorkspaceRestorer.exe`. The package without `-zh` uses English data directory names; the `-zh` package uses Chinese data directory names. Each package also includes `LICENSE` and `SOURCE.txt`.
 
 ## Features
 

@@ -24,7 +24,7 @@
 | Windows 10/11 x64 | 免安装版 | [WorkspaceRestorer-v1.0.0-windows-x64.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64.zip) |
 | Windows 10/11 x64 | 免安装版 | [WorkspaceRestorer-v1.0.0-windows-x64-zh.zip](https://github.com/lix996/WorkspaceRestorer/releases/download/v1.0.0/WorkspaceRestorer-v1.0.0-windows-x64-zh.zip) |
 
-> 免安装版，解压后运行 `WorkspaceRestorer.exe`。不带 `-zh` 的包使用英文数据目录名，带 `-zh` 的包使用中文数据目录名。
+> 免安装版，解压后运行 `WorkspaceRestorer.exe`。不带 `-zh` 的包使用英文数据目录名，带 `-zh` 的包使用中文数据目录名。每个包还包含 `LICENSE` 和 `SOURCE.txt`。
 
 ## 功能
 
