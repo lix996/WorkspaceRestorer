@@ -11,7 +11,7 @@
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[下载](#下载) · [功能](#功能) · [使用](#使用) · [SmartScreen](#windows-smartscreen) · [从源码构建](#从源码构建) · [许可证](#许可证)
+[下载](#下载) · [功能](#功能) · [使用](#使用) · [安全验证](#安全验证) · [从源码构建](#从源码构建) · [许可证](#许可证)
 
 </div>
 
@@ -39,31 +39,39 @@
 2. 运行 `WorkspaceRestorer.exe`；首次运行会在同目录创建 `data` 数据目录。
 3. 需要迁移时，保留 `data` 目录即可。
 
-## Windows SmartScreen
-
-程序没有代码签名。首次运行可能出现“Windows 已保护你的电脑”。这是 SmartScreen 对未签名、低信誉程序的提示，不是报毒。请确认文件来自本仓库，且 SHA-256 与 Release 页面上的校验和一致后再继续。
-
-1. 点“更多信息”；
-2. 点“仍要运行”。
-
-如果下载的是 zip，也可以先右键 zip → **属性** → 勾选“**解除锁定**”，再解压运行。这个设置只对当前电脑有效；要让所有用户都不再看到提示，需要对 exe 做代码签名。
-
 ## 安全验证
 
-Release 里的程序目前没有代码签名。在签名完成前：
+当前构建未签名。首次运行可能出现 Windows SmartScreen 提示。
 
-- **校验下载**：用 zip 的 SHA-256 与 [Release 页面](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0)上的校验和比对。
+### 校验下载
 
-  ```powershell
-  Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
-  ```
+用 SHA-256 与 [Release 页面](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0)上的校验和比对。
 
-- **SmartScreen**：见上面的 [Windows SmartScreen](#windows-smartscreen)。
-- **VirusTotal**：本次测试的 Windows x64 exe [发布时 0/71 个引擎报毒](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1)。两个包只有固定数据目录名不同。
-- **安全反馈**：如果你认为某个版本被误报，请提交 [Issue](https://github.com/lix996/WorkspaceRestorer/issues)，不要因此关闭系统 SmartScreen。
-- **代码签名**：计划申请 SignPath Foundation 开源签名；当前构建仍未签名。
+```powershell
+Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64-zh.zip -Algorithm SHA256
+```
 
-请只从本仓库下载 Release；不要为了运行程序关闭系统 SmartScreen。
+### Windows SmartScreen
+
+如果出现“Windows 已保护你的电脑”：
+
+1. 点“更多信息”
+2. 点“仍要运行”
+
+具体按钮以系统显示为准。
+
+如果下载的是 zip，也可以尝试：右键 zip → **属性** → 勾选“**解除锁定**”，再解压运行。
+
+### VirusTotal
+
+[2026-11-21 的扫描报告](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1)。
+
+扫描结果显示在报告页，可能随引擎更新变化。
+
+### 反馈
+
+如果遇到误报或其他问题，请提交 [Issue](https://github.com/lix996/WorkspaceRestorer/issues)。
 
 ## 从源码构建
 
@@ -138,4 +146,4 @@ assets\                  app.ico、app.png
 
 ## 许可证
 
-MIT，见 [LICENSE](LICENSE)。
+GPL-3.0，见 [LICENSE](LICENSE)。

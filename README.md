@@ -11,7 +11,7 @@ A portable desktop workspace tool for Windows 10/11 x64. It can save and restore
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[Download](#download) · [Features](#features) · [Usage](#usage) · [SmartScreen](#windows-smartscreen) · [Build from source](#build-from-source) · [License](#license)
+[Download](#download) · [Features](#features) · [Usage](#usage) · [Security](#security) · [Build from source](#build-from-source) · [License](#license)
 
 </div>
 
@@ -39,31 +39,39 @@ Get the latest version from [GitHub Releases](https://github.com/lix996/Workspac
 2. Run `WorkspaceRestorer.exe`; the first launch creates a `data` directory next to it.
 3. To migrate, keep the `data` directory.
 
-## Windows SmartScreen
+## Security
 
-The executable is unsigned. On first launch, Windows may show **Windows protected your PC**. This is a SmartScreen reputation warning, not a virus detection. Only continue if you downloaded the file from this repository and its SHA-256 matches the checksum on the release page.
+The current build is unsigned. Windows SmartScreen may appear on first launch.
+
+### Verify the download
+
+Compare the SHA-256 with the checksum on the [release page](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0).
+
+```powershell
+Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64-zh.zip -Algorithm SHA256
+```
+
+### Windows SmartScreen
+
+If **Windows protected your PC** appears:
 
 1. Click **More info**.
 2. Click **Run anyway**.
 
-If you downloaded the zip, you can also right-click the zip → **Properties** → **Unblock** before extracting. This only affects the current PC; removing the warning for all users requires code signing.
+The exact button labels may vary by Windows version.
 
-## Security
+If you downloaded the zip, you can also try: right-click the zip → **Properties** → **Unblock** before extracting.
 
-The release binaries are not code-signed yet. Until signing is available:
+### VirusTotal
 
-- **Verify the download:** compare the SHA-256 of the zip with the checksum on the [release page](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0).
+[Scan report from 2026-11-21](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1).
 
-  ```powershell
-  Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
-  ```
+The result is shown on the report page and may change as engines update.
 
-- **SmartScreen:** see [Windows SmartScreen](#windows-smartscreen) above.
-- **VirusTotal:** the tested Windows x64 executable was [0/71 at release](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1). The two packages differ only in fixed data-folder names.
-- **Security reports:** if you believe a release is falsely detected, open an [Issue](https://github.com/lix996/WorkspaceRestorer/issues) instead of disabling SmartScreen.
-- **Code signing:** an Open Source signing application (SignPath Foundation) is planned; the current builds remain unsigned.
+### Feedback
 
-Only download releases from this repository. Do not disable SmartScreen system-wide.
+If you encounter a false positive or another issue, open an [Issue](https://github.com/lix996/WorkspaceRestorer/issues).
 
 ## Build from source
 
@@ -138,4 +146,4 @@ If this tool is useful to you, a star is appreciated. For bugs and feature reque
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+GPL-3.0. See [LICENSE](LICENSE).

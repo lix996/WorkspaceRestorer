@@ -3,7 +3,7 @@
 - 仓库：https://github.com/lix996/WorkspaceRestorer
 - 可见性：公开
 - 默认分支：main
-- 许可证：MIT
+- 许可证：GPL-3.0
 - 仓库根：本目录（本地外层项目里是 `yuanwenjian\`）
 
 ## 发布范围
