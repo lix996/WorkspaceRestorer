@@ -65,9 +65,7 @@ If you downloaded the zip, you can also try: right-click the zip → **Propertie
 
 ### VirusTotal
 
-[Scan report from 2026-11-21](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1).
-
-The result is shown on the report page and may change as engines update.
+You can upload the downloaded file to [VirusTotal](https://www.virustotal.com/) for an independent check. Results are shown on the report page and may change as engines update.
 
 ### Feedback
 

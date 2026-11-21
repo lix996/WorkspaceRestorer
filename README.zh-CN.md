@@ -65,9 +65,7 @@ Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64-zh.zip -Algorithm SHA256
 
 ### VirusTotal
 
-[2026-11-21 的扫描报告](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1)。
-
-扫描结果显示在报告页，可能随引擎更新变化。
+可以把下载到的文件上传到 [VirusTotal](https://www.virustotal.com/) 做独立检查。结果显示在报告页，可能随引擎更新变化。
 
 ### 反馈
 
