@@ -60,7 +60,7 @@ The release binaries are not code-signed yet. Until signing is available:
 
 - **SmartScreen:** see [Windows SmartScreen](#windows-smartscreen) above.
 - **VirusTotal:** the tested Windows x64 executable was [0/71 at release](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1). The two packages differ only in fixed data-folder names.
-- **Report a false positive:** send the file and its SHA-256 to [Microsoft WDSI](https://www.microsoft.com/en-us/wdsi/filesubmission). This can correct malware classifications, but does not remove the unsigned-app reputation warning.
+- **Security reports:** if you believe a release is falsely detected, open an [Issue](https://github.com/lix996/WorkspaceRestorer/issues) instead of disabling SmartScreen.
 - **Code signing:** an Open Source signing application (SignPath Foundation) is planned; the current builds remain unsigned.
 
 Only download releases from this repository. Do not disable SmartScreen system-wide.

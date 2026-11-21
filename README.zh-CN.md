@@ -60,7 +60,7 @@ Release 里的程序目前没有代码签名。在签名完成前：
 
 - **SmartScreen**：见上面的 [Windows SmartScreen](#windows-smartscreen)。
 - **VirusTotal**：本次测试的 Windows x64 exe [发布时 0/71 个引擎报毒](https://www.virustotal.com/gui/file/B3864FFD1FEF8CBD459C9896CDF7CD5A29AF634A36FAEB55DD5C1184321D52F1)。两个包只有固定数据目录名不同。
-- **误报反馈**：把文件和 SHA-256 提交到 [Microsoft WDSI](https://www.microsoft.com/en-us/wdsi/filesubmission)。这能修正杀软误报，但不会消除“未签名应用”的 SmartScreen 提示。
+- **安全反馈**：如果你认为某个版本被误报，请提交 [Issue](https://github.com/lix996/WorkspaceRestorer/issues)，不要因此关闭系统 SmartScreen。
 - **代码签名**：计划申请 SignPath Foundation 开源签名；当前构建仍未签名。
 
 请只从本仓库下载 Release；不要为了运行程序关闭系统 SmartScreen。
