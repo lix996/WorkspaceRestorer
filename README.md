@@ -48,6 +48,23 @@ The executable is unsigned. On first launch, Windows may show **Windows protecte
 
 If you downloaded the zip, you can also right-click the zip → **Properties** → **Unblock** before extracting. This only affects the current PC; removing the warning for all users requires code signing.
 
+## Security
+
+The release binaries are not code-signed yet. Until signing is available:
+
+- **Verify the download:** compare the SHA-256 of the zip with the checksum on the [release page](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0).
+
+  ```powershell
+  Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
+  ```
+
+- **SmartScreen:** see [Windows SmartScreen](#windows-smartscreen) above.
+- **Independent scan:** you can upload the downloaded zip to [VirusTotal](https://www.virustotal.com/gui/home/upload).
+- **Report a false positive:** send the file and its SHA-256 to [Microsoft WDSI](https://www.microsoft.com/en-us/wdsi/filesubmission). This can correct malware classifications, but does not remove the unsigned-app reputation warning.
+- **Code signing:** an Open Source signing application (SignPath Foundation) is planned; the current builds remain unsigned.
+
+Only download releases from this repository. Do not disable SmartScreen system-wide.
+
 ## Build from source
 
 Requirements:

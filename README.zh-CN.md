@@ -48,6 +48,23 @@
 
 如果下载的是 zip，也可以先右键 zip → **属性** → 勾选“**解除锁定**”，再解压运行。这个设置只对当前电脑有效；要让所有用户都不再看到提示，需要对 exe 做代码签名。
 
+## 安全验证
+
+Release 里的程序目前没有代码签名。在签名完成前：
+
+- **校验下载**：用 zip 的 SHA-256 与 [Release 页面](https://github.com/lix996/WorkspaceRestorer/releases/tag/v1.0.0)上的校验和比对。
+
+  ```powershell
+  Get-FileHash .\WorkspaceRestorer-v1.0.0-windows-x64.zip -Algorithm SHA256
+  ```
+
+- **SmartScreen**：见上面的 [Windows SmartScreen](#windows-smartscreen)。
+- **独立扫描**：可以把下载的 zip 上传到 [VirusTotal](https://www.virustotal.com/gui/home/upload) 做多引擎扫描。
+- **误报反馈**：把文件和 SHA-256 提交到 [Microsoft WDSI](https://www.microsoft.com/en-us/wdsi/filesubmission)。这能修正杀软误报，但不会消除“未签名应用”的 SmartScreen 提示。
+- **代码签名**：计划申请 SignPath Foundation 开源签名；当前构建仍未签名。
+
+请只从本仓库下载 Release；不要为了运行程序关闭系统 SmartScreen。
+
 ## 从源码构建
 
 环境要求：
