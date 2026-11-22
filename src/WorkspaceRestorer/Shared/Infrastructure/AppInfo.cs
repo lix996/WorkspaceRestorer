@@ -5,9 +5,9 @@ using System.Reflection;
 [assembly: AssemblyProduct("Workspace Restorer")]
 [assembly: AssemblyCompany("lix996")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 lix996")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.0")]
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyInformationalVersion("1.0.1")]
 
 namespace WorkspaceRestorer.Infrastructure
 {
@@ -17,7 +17,7 @@ namespace WorkspaceRestorer.Infrastructure
     /// </summary>
     public static class AppInfo
     {
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         /// <summary>作者署名和公开邮箱；关于页会显示并启用“写邮件”。</summary>
         public const string AuthorName = "lix996";
