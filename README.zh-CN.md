@@ -11,7 +11,7 @@
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[下载](#下载) · [功能](#功能) · [使用](#使用) · [安全验证](#安全验证) · [从源码构建](#从源码构建) · [许可证](#许可证)
+[下载](#下载) · [视频](#视频) · [功能](#功能) · [使用](#使用) · [安全验证](#安全验证) · [从源码构建](#从源码构建) · [许可证](#许可证)
 
 </div>
 
@@ -29,6 +29,15 @@
 > **安装版**：按当前用户安装，不请求管理员权限，也不弹 UAC。默认安装到 `%LOCALAPPDATA%\Programs\WorkspaceRestorer`，也可以选择任何当前用户有写入权限的目录。覆盖安装到同一目录会保留已有的 `data` 目录；卸载时也会保留 `data`。
 >
 > **免安装版**：解压后运行 `WorkspaceRestorer.exe`。数据保存在 exe 旁边的 `data` 目录。不带 `-zh` 的包使用英文数据目录名，带 `-zh` 的包使用中文数据目录名。每个包还包含 `LICENSE` 和 `SOURCE.txt`。
+
+## 视频
+
+中文演示：
+
+| 平台 | 观看 |
+| --- | --- |
+| B站 | [换屏、重装后桌面全乱？WorkspaceRestorer 一键找回](https://www.bilibili.com/video/BV1Joy5ziE5R/) |
+| YouTube | [Windows 工作环境一键恢复｜WorkspaceRestorer 使用介绍](https://www.youtube.com/watch?v=1v0kP7t1hAU) |
 
 ## 功能
 

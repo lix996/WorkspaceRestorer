@@ -11,7 +11,7 @@ A desktop workspace tool for Windows 10/11 x64. It can save and restore work ses
 [![Release](https://img.shields.io/github/v/release/lix996/WorkspaceRestorer?style=flat-square&label=release)](https://github.com/lix996/WorkspaceRestorer/releases/latest)
 [![License](https://img.shields.io/github/license/lix996/WorkspaceRestorer?style=flat-square)](LICENSE)
 
-[Download](#download) · [Features](#features) · [Usage](#usage) · [Security](#security) · [Build from source](#build-from-source) · [License](#license)
+[Download](#download) · [Video](#video) · [Features](#features) · [Usage](#usage) · [Security](#security) · [Build from source](#build-from-source) · [License](#license)
 
 </div>
 
@@ -29,6 +29,15 @@ Get the latest version from [GitHub Releases](https://github.com/lix996/Workspac
 > **Installer**: per-user and does not request administrator rights or UAC. The default folder is `%LOCALAPPDATA%\Programs\WorkspaceRestorer`; you can choose any folder you can write to. Installing over the same folder keeps the existing `data` directory, and uninstalling leaves `data` in place.
 >
 > **Portable**: extract and run `WorkspaceRestorer.exe`. Data stays in the `data` directory next to the executable. The package without `-zh` uses English data directory names; the `-zh` package uses Chinese data directory names. Every package also includes `LICENSE` and `SOURCE.txt`.
+
+## Video
+
+Chinese walkthrough:
+
+| Platform | Watch |
+| --- | --- |
+| YouTube | [Windows 工作环境一键恢复｜WorkspaceRestorer 使用介绍](https://www.youtube.com/watch?v=1v0kP7t1hAU) |
+| Bilibili | [换屏、重装后桌面全乱？WorkspaceRestorer 一键找回](https://www.bilibili.com/video/BV1Joy5ziE5R/) |
 
 ## Features
 
