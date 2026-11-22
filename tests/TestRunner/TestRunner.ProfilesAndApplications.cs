@@ -595,6 +595,168 @@ namespace WorkspaceRestorer.Tests
                     controller.Dispose();
                 }
             });
+            Run("删除方案后镜像文件夹立即删除，重启不会再次被收编", delegate
+            {
+                ApplicationController controller = new ApplicationController(
+                    new TestCaptureService(),
+                    new RecordingRestoreService(),
+                    new TestDesktopApplicationService(),
+                    null,
+                    null);
+                ApplicationController reloaded = null;
+                string previousIntake = Environment.GetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE");
+                try
+                {
+                    string suffix = Guid.NewGuid().ToString("N").Substring(0, 6);
+                    string profileName = "删除镜像-" + suffix;
+                    string planName = "删除应用镜像-" + suffix;
+
+                    StartupProfile profile = controller.CreateProfile(profileName);
+                    string profileFolder = StartupProfileFolderMirror.FolderPathFor(
+                        profile,
+                        controller.StartupProfiles);
+                    Assert(Directory.Exists(profileFolder), "新建工作方案时应生成镜像文件夹。");
+                    controller.DeleteProfile(profile);
+                    Assert(!Directory.Exists(profileFolder),
+                        "删除工作方案后镜像文件夹应立刻删除，否则下次启动会被当成未登记的方案。");
+
+                    ApplicationPlan plan = controller.CreateApplicationPlan(planName);
+                    string planFolder = ApplicationPlanFolderMirror.FolderPathFor(
+                        plan,
+                        controller.ApplicationPlans);
+                    Assert(Directory.Exists(planFolder), "新建自启动方案时应生成镜像文件夹。");
+                    controller.DeleteApplicationPlan(plan);
+                    Assert(!Directory.Exists(planFolder),
+                        "删除自启动方案后镜像文件夹应立刻删除，否则下次启动会被当成未登记的方案。");
+
+                    controller.Dispose();
+                    controller = null;
+
+                    // 强制“是”：如果文件夹还在，重启收编会把刚删掉的方案又加回来。
+                    Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", "yes");
+                    reloaded = new ApplicationController(
+                        new TestCaptureService(),
+                        new RecordingRestoreService(),
+                        new TestDesktopApplicationService(),
+                        null,
+                        null);
+                    reloaded.RunMirrorIntake();
+                    Assert(FindProfileByName(reloaded, profileName) == null,
+                        "重启收编后，已删除的工作方案不应再出现。");
+                    bool planFound = false;
+                    for (int index = 0; index < reloaded.ApplicationPlans.Count; index++)
+                    {
+                        if (string.Equals(reloaded.ApplicationPlans[index].Name, planName, StringComparison.Ordinal))
+                        {
+                            planFound = true;
+                        }
+                    }
+                    Assert(!planFound, "重启收编后，已删除的自启动方案不应再出现。");
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", previousIntake);
+                    if (reloaded != null)
+                    {
+                        reloaded.Dispose();
+                    }
+                    if (controller != null)
+                    {
+                        controller.Dispose();
+                    }
+                }
+            });
+
+            Run("收编三选一：导入、暂不导入、移到无法识别各走各的路径", delegate
+            {
+                string previousIntake = Environment.GetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE");
+                try
+                {
+                    WithTemporaryDataRoot(delegate(string dataRoot)
+                    {
+                        AppPaths.EnsureDataDirectories();
+                        StartupProfile imported = new StartupProfile();
+                        imported.Id = "intake-import-" + Guid.NewGuid().ToString("N");
+                        imported.Name = "导入候选";
+                        WriteProfileSnapshot(
+                            Path.Combine(AppPaths.StartupProfilesFolderRoot, "导入候选"),
+                            imported);
+
+                        Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", "yes");
+                        using (ApplicationController controller = new ApplicationController(
+                            new TestCaptureService(),
+                            new RecordingRestoreService(),
+                            new TestDesktopApplicationService(),
+                            null,
+                            null))
+                        {
+                            controller.RunMirrorIntake();
+                            Assert(FindProfileByName(controller, "导入候选") != null,
+                                "选择导入后候选应进入清单。");
+                        }
+                    });
+
+                    WithTemporaryDataRoot(delegate(string dataRoot)
+                    {
+                        AppPaths.EnsureDataDirectories();
+                        StartupProfile deferred = new StartupProfile();
+                        deferred.Id = "intake-defer-" + Guid.NewGuid().ToString("N");
+                        deferred.Name = "暂不导入候选";
+                        WriteProfileSnapshot(
+                            Path.Combine(AppPaths.StartupProfilesFolderRoot, "暂不导入候选"),
+                            deferred);
+
+                        Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", "no");
+                        using (ApplicationController controller = new ApplicationController(
+                            new TestCaptureService(),
+                            new RecordingRestoreService(),
+                            new TestDesktopApplicationService(),
+                            null,
+                            null))
+                        {
+                            controller.RunMirrorIntake();
+                            Assert(FindProfileByName(controller, "暂不导入候选") == null,
+                                "暂不导入不应进入清单。");
+                            string ignoredPath = Path.Combine(AppPaths.DataRoot, ".mirror-intake.txt");
+                            Assert(File.Exists(ignoredPath), "暂不导入应写会话记录。");
+                            Assert(File.ReadAllText(ignoredPath).Contains("暂不导入候选"),
+                                "会话记录应包含候选路径。");
+                        }
+                    });
+
+                    WithTemporaryDataRoot(delegate(string dataRoot)
+                    {
+                        AppPaths.EnsureDataDirectories();
+                        StartupProfile quarantined = new StartupProfile();
+                        quarantined.Id = "intake-move-" + Guid.NewGuid().ToString("N");
+                        quarantined.Name = "移走候选";
+                        string source = Path.Combine(AppPaths.StartupProfilesFolderRoot, "移走候选");
+                        WriteProfileSnapshot(source, quarantined);
+
+                        Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", "move");
+                        using (ApplicationController controller = new ApplicationController(
+                            new TestCaptureService(),
+                            new RecordingRestoreService(),
+                            new TestDesktopApplicationService(),
+                            null,
+                            null))
+                        {
+                            controller.RunMirrorIntake();
+                            Assert(FindProfileByName(controller, "移走候选") == null,
+                                "移到无法识别不应进入清单。");
+                            Assert(!Directory.Exists(source), "原文件夹应已移走。");
+                            Assert(Directory.Exists(Path.Combine(
+                                AppPaths.UnrecognizedKindDirectory(AppPaths.StartupRestoreKind),
+                                "移走候选")), "文件夹应出现在无法识别目录。");
+                        }
+                    });
+                }
+                finally
+                {
+                    Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_INTAKE", previousIntake);
+                }
+            });
+
             Run("启动项可以搬到另一份方案，方案也可以整份并入另一份", delegate
             {
                 ApplicationController controller = new ApplicationController(

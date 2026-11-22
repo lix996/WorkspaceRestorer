@@ -168,7 +168,7 @@ namespace WorkspaceRestorer.Tests
                     WriteProfileSnapshot(folder, ignored);
 
                     HashSet<string> signatures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    signatures.Add(MirrorIntake.Signature(AppPaths.StartupRestoreKind, folder));
+                    MirrorIntake.Defer(AppPaths.StartupRestoreKind, folder, signatures);
 
                     List<StartupProfile> known = new List<StartupProfile>();
                     List<MirrorIntakeFolder<StartupProfile>> adoptable =
@@ -185,6 +185,139 @@ namespace WorkspaceRestorer.Tests
                         out skipped);
                     AssertEqual(0, pending.Count);
                     AssertEqual(1, skipped.Count);
+                });
+            });
+
+            Run("镜像收编：暂不导入只压本次登录会话，重启后再问", delegate
+            {
+                WithTemporaryDataRoot(delegate(string dataRoot)
+                {
+                    AppPaths.EnsureDataDirectories();
+
+                    string folder = Path.Combine(AppPaths.StartupProfilesFolderRoot, "暂不导入的方案");
+                    StartupProfile deferred = new StartupProfile();
+                    deferred.Id = "defer-" + Guid.NewGuid().ToString("N");
+                    deferred.Name = "暂不导入的方案";
+                    WriteProfileSnapshot(folder, deferred);
+
+                    HashSet<string> ignored = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    MirrorIntake.Defer(AppPaths.StartupRestoreKind, folder, ignored);
+                    MirrorIntake.SaveIgnored(ignored);
+
+                    List<StartupProfile> known = new List<StartupProfile>();
+                    List<MirrorIntakeFolder<StartupProfile>> adoptable =
+                        new List<MirrorIntakeFolder<StartupProfile>>();
+                    List<string> unrecognized = new List<string>();
+                    StartupProfileFolderMirror.ScanUnadopted(known, adoptable, unrecognized);
+                    AssertEqual(1, adoptable.Count);
+
+                    List<string> skipped;
+                    List<MirrorIntakeFolder<StartupProfile>> sameSession = MirrorIntake.ExcludeIgnored(
+                        adoptable,
+                        AppPaths.StartupRestoreKind,
+                        ignored,
+                        out skipped);
+                    AssertEqual(0, sameSession.Count);
+                    AssertEqual(1, skipped.Count);
+
+                    string previousSession = Environment.GetEnvironmentVariable("WORKSPACE_RESTORER_LOGON_SESSION");
+                    try
+                    {
+                        Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_LOGON_SESSION", "simulated-next-logon");
+                        List<MirrorIntakeFolder<StartupProfile>> nextSession = MirrorIntake.ExcludeIgnored(
+                            adoptable,
+                            AppPaths.StartupRestoreKind,
+                            ignored,
+                            out skipped);
+                        AssertEqual(1, nextSession.Count);
+                        AssertEqual(0, skipped.Count);
+                    }
+                    finally
+                    {
+                        Environment.SetEnvironmentVariable("WORKSPACE_RESTORER_LOGON_SESSION", previousSession);
+                    }
+
+                    MirrorIntake.Forget(AppPaths.StartupRestoreKind, folder, ignored);
+                    MirrorIntake.SaveIgnored(ignored);
+                    List<MirrorIntakeFolder<StartupProfile>> afterForget = MirrorIntake.ExcludeIgnored(
+                        adoptable,
+                        AppPaths.StartupRestoreKind,
+                        ignored,
+                        out skipped);
+                    AssertEqual(1, afterForget.Count);
+                });
+            });
+
+            Run("镜像收编：旧版没有前缀的忽略记录升级后作废一次", delegate
+            {
+                WithTemporaryDataRoot(delegate(string dataRoot)
+                {
+                    AppPaths.EnsureDataDirectories();
+
+                    string folder = Path.Combine(AppPaths.StartupProfilesFolderRoot, "旧忽略方案");
+                    StartupProfile legacy = new StartupProfile();
+                    legacy.Id = "legacy-ignore-" + Guid.NewGuid().ToString("N");
+                    legacy.Name = "旧忽略方案";
+                    WriteProfileSnapshot(folder, legacy);
+
+                    HashSet<string> ignored = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    ignored.Add(MirrorIntake.Signature(AppPaths.StartupRestoreKind, folder));
+
+                    List<StartupProfile> known = new List<StartupProfile>();
+                    List<MirrorIntakeFolder<StartupProfile>> adoptable =
+                        new List<MirrorIntakeFolder<StartupProfile>>();
+                    List<string> unrecognized = new List<string>();
+                    StartupProfileFolderMirror.ScanUnadopted(known, adoptable, unrecognized);
+                    List<string> skipped;
+                    List<MirrorIntakeFolder<StartupProfile>> pending = MirrorIntake.ExcludeIgnored(
+                        adoptable,
+                        AppPaths.StartupRestoreKind,
+                        ignored,
+                        out skipped);
+                    AssertEqual(1, pending.Count);
+                    AssertEqual(0, skipped.Count);
+                });
+            });
+
+            Run("镜像收编：父子同时候选时只移动最外层父文件夹", delegate
+            {
+                WithTemporaryDataRoot(delegate(string dataRoot)
+                {
+                    AppPaths.EnsureDataDirectories();
+
+                    StartupProfile parent = new StartupProfile();
+                    parent.Id = "top-parent-" + Guid.NewGuid().ToString("N");
+                    parent.Name = "父方案";
+                    WriteProfileSnapshot(
+                        Path.Combine(AppPaths.StartupProfilesFolderRoot, "父方案"),
+                        parent);
+
+                    StartupProfile child = new StartupProfile();
+                    child.Id = "top-child-" + Guid.NewGuid().ToString("N");
+                    child.Name = "子方案";
+                    WriteProfileSnapshot(
+                        Path.Combine(AppPaths.StartupProfilesFolderRoot, "父方案", "子方案"),
+                        child);
+
+                    List<StartupProfile> known = new List<StartupProfile>();
+                    List<MirrorIntakeFolder<StartupProfile>> adoptable =
+                        new List<MirrorIntakeFolder<StartupProfile>>();
+                    List<string> unrecognized = new List<string>();
+                    StartupProfileFolderMirror.ScanUnadopted(known, adoptable, unrecognized);
+                    AssertEqual(2, adoptable.Count);
+
+                    List<MirrorIntakeFolder<StartupProfile>> top =
+                        MirrorIntake.SelectTopMostFolders(adoptable);
+                    AssertEqual(1, top.Count);
+                    AssertEqual("父方案", top[0].Name);
+
+                    string destination;
+                    Assert(MirrorIntake.MoveToUnrecognized(
+                        top[0].Directory,
+                        AppPaths.StartupRestoreKind,
+                        out destination), "父文件夹应能移到无法识别。");
+                    Assert(File.Exists(Path.Combine(destination, "子方案", "方案.json")),
+                        "移动父文件夹时子方案目录应一起带走。");
                 });
             });
 

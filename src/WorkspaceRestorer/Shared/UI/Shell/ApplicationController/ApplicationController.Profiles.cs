@@ -14,6 +14,7 @@ using WorkspaceRestorer.Applications.Core;
 using WorkspaceRestorer.Applications.Deletion;
 using WorkspaceRestorer.Desktop;
 using WorkspaceRestorer.Infrastructure;
+using WorkspaceRestorer.Infrastructure.PlanMirrors;
 using WorkspaceRestorer.Models;
 using WorkspaceRestorer.Core.Cards.PlanFolders;
 using WorkspaceRestorer.RecycleBin.Core;
@@ -463,6 +464,9 @@ namespace WorkspaceRestorer.UI
             string originalParentId = stored.ParentId;
             int originalSiblingIndex = PlanFolderTree.SiblingIndex(startupProfiles, stored);
             string originalPath = PlanFolderTree.PathOf(startupProfiles, stored, " / ");
+            // 必须在从清单里移除之前算出镜像文件夹：移除后它就成了“清单外的文件夹”，
+            // 同步逻辑会按“外部复制进来”的规则保留它，下次启动又弹出“发现未登记的方案”。
+            string mirrorFolder = StartupProfileFolderMirror.FindFolderFor(stored, startupProfiles);
             bool activeRemoved = false;
             for (int index = 0; index < subtree.Count; index++)
             {
@@ -509,7 +513,15 @@ namespace WorkspaceRestorer.UI
                     ProgressValue = 0;
                 }
             }
-            PersistProfiles();
+            bool catalogSaved = PersistProfiles(true);
+            // 清单先落盘，再删镜像文件夹：中途失败时至少不会出现“清单里没有、文件夹也没了”。
+            // 删除失败就记下签名，下次启动不要再把它当新方案来问。
+            if (catalogSaved
+                && !string.IsNullOrWhiteSpace(mirrorFolder)
+                && !StartupProfileFolderMirror.DeleteFolderAt(mirrorFolder))
+            {
+                MirrorIntake.RememberIgnored(AppPaths.StartupRestoreKind, mirrorFolder);
+            }
             OnPropertyChanged("Profiles");
             OnPropertyChanged("StartupProfiles");
             OnPropertyChanged("ActiveProfile");

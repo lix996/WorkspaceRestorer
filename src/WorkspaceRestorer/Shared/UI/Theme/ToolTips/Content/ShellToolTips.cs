@@ -96,6 +96,21 @@
             get { return Named("shell.tip.confirmNo"); }
         }
 
+        public static TooltipDefinition IntakeImport
+        {
+            get { return Named("shell.tip.intakeImport"); }
+        }
+
+        public static TooltipDefinition IntakeDefer
+        {
+            get { return Named("shell.tip.intakeDefer"); }
+        }
+
+        public static TooltipDefinition IntakeQuarantine
+        {
+            get { return Named("shell.tip.intakeQuarantine"); }
+        }
+
         public static TooltipDefinition NameInput
         {
             get { return Named("shell.tip.nameInput"); }

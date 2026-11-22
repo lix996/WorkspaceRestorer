@@ -14,6 +14,7 @@ using WorkspaceRestorer.Applications.Core;
 using WorkspaceRestorer.Applications.Deletion;
 using WorkspaceRestorer.Desktop;
 using WorkspaceRestorer.Infrastructure;
+using WorkspaceRestorer.Infrastructure.PlanMirrors;
 using WorkspaceRestorer.Models;
 using WorkspaceRestorer.Core.Cards.PlanFolders;
 using WorkspaceRestorer.RecycleBin.Core;
@@ -568,6 +569,8 @@ namespace WorkspaceRestorer.UI
             string originalParentId = stored.ParentId;
             int originalSiblingIndex = PlanFolderTree.SiblingIndex(applicationPlans, stored);
             string originalPath = PlanFolderTree.PathOf(applicationPlans, stored, " / ");
+            // 同「启动与恢复」：移除前先记住镜像文件夹，移除后它会被当成“外部复制进来”的文件夹保留。
+            string mirrorFolder = ApplicationPlanFolderMirror.FindFolderFor(stored, applicationPlans);
             bool activeRemoved = false;
             for (int index = 0; index < subtree.Count; index++)
             {
@@ -601,7 +604,14 @@ namespace WorkspaceRestorer.UI
                 }
                 applicationPlanCatalog.ActivePlanId = replacement == null ? null : replacement.Id;
             }
-            PersistApplicationPlans();
+            bool catalogSaved = PersistApplicationPlans(true);
+            // 清单先落盘，再删镜像文件夹；删除失败就记下签名，避免下次启动重复询问。
+            if (catalogSaved
+                && !string.IsNullOrWhiteSpace(mirrorFolder)
+                && !ApplicationPlanFolderMirror.DeleteFolderAt(mirrorFolder))
+            {
+                MirrorIntake.RememberIgnored(AppPaths.ApplicationsKind, mirrorFolder);
+            }
             OnPropertyChanged("ApplicationPlans");
             StatusText = AppText.F(
                 ShellTextKeys.StatusPlanDeletedFormat,

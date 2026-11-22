@@ -55,6 +55,18 @@ namespace WorkspaceRestorer.Infrastructure
             return Engine.FolderPathFor(profile, allProfiles, AppPaths.StartupProfilesFolderRoot);
         }
 
+        /// <summary>找这份工作方案实际所在的镜像文件夹（删除方案前调用）。</summary>
+        public static string FindFolderFor(StartupProfile profile, IList<StartupProfile> allProfiles)
+        {
+            return Engine.FindFolderFor(profile, allProfiles, AppPaths.StartupProfilesFolderRoot);
+        }
+
+        /// <summary>删除一份工作方案自己的镜像文件夹；调用前必须已经把数据写进回收站。</summary>
+        public static bool DeleteFolderAt(string directory)
+        {
+            return Engine.DeleteFolderAt(directory, AppPaths.StartupProfilesFolderRoot);
+        }
+
         /// <summary>读镜像目录里的 方案.json，返回 Id；读不出来返回空字符串。</summary>
         public static string ReadProfileIdAt(string dataPath)
         {

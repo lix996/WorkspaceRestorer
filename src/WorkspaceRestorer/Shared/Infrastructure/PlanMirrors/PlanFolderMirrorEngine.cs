@@ -96,6 +96,59 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
             return PlanMirrorPath.BuildPath(root, segments);
         }
 
+        /// <summary>
+        /// 找这份方案**实际**所在的镜像文件夹：先按当前树算规范路径，找不到再按 Id 扫。
+        /// 删除方案时要在把它从清单里移除之前调用，否则清单里已经没有它，路径就算不出来了。
+        /// </summary>
+        public string FindFolderFor(T node, IList<T> allNodes, string root)
+        {
+            if (node == null || string.IsNullOrWhiteSpace(node.Id))
+            {
+                return null;
+            }
+            string canonical = FolderPathFor(node, allNodes, root);
+            T atCanonical = ReadNodeAt(canonical);
+            if (atCanonical != null
+                && string.Equals(atCanonical.Id, node.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                return canonical;
+            }
+            return FindFolderById(root, node.Id, 0);
+        }
+
+        /// <summary>
+        /// 只删这一份方案自己的镜像文件夹（连同它的子方案目录）。
+        /// 调用方必须确认数据已经写进回收站；这里不碰镜像根以外的路径。
+        /// </summary>
+        public bool DeleteFolderAt(string directory, string root)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                return true;
+            }
+            try
+            {
+                string full = Path.GetFullPath(directory).TrimEnd(Path.DirectorySeparatorChar);
+                string rootFull = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar);
+                if (!full.StartsWith(rootFull + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                {
+                    AppLog.Write(subject + "拒绝删除镜像根之外的文件夹：" + directory);
+                    return false;
+                }
+                if (!Directory.Exists(full))
+                {
+                    return true;
+                }
+                Directory.Delete(full, true);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                AppLog.Write(subject + "删除镜像文件夹失败（数据已在回收站）：" + directory, exception);
+                return false;
+            }
+        }
+
         /// <summary>只重写一份方案的镜像目录（移动后调用，不重写整棵树）。</summary>
         public void SyncMoved(T node, IList<T> allNodes, string root)
         {
@@ -205,6 +258,38 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
                 removed.Clear();
             }
             return removed;
+        }
+
+        private string FindFolderById(string directory, string id, int depth)
+        {
+            if (depth > 32 || string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+            {
+                return null;
+            }
+            string[] directories;
+            try
+            {
+                directories = Directory.GetDirectories(directory);
+            }
+            catch
+            {
+                return null;
+            }
+            Array.Sort(directories, StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index < directories.Length; index++)
+            {
+                T node = ReadNodeAt(directories[index]);
+                if (node != null && string.Equals(node.Id, id, StringComparison.OrdinalIgnoreCase))
+                {
+                    return directories[index];
+                }
+                string nested = FindFolderById(directories[index], id, depth + 1);
+                if (!string.IsNullOrWhiteSpace(nested))
+                {
+                    return nested;
+                }
+            }
+            return null;
         }
 
         private void WriteNode(string root, string folderName, T node)

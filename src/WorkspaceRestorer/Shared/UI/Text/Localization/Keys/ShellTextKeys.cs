@@ -23,6 +23,12 @@ namespace WorkspaceRestorer.UI
         public const string DialogIntakeTitle = "shell.dialog.intakeTitle";
         public const string DialogIntakeMessageFormat = "shell.dialog.intakeMessageFormat";
         public const string DialogIntakeDetail = "shell.dialog.intakeDetail";
+        public const string DialogIntakeImport = "shell.dialog.intakeImport";
+        public const string DialogIntakeDefer = "shell.dialog.intakeDefer";
+        public const string DialogIntakeQuarantine = "shell.dialog.intakeQuarantine";
+        public const string StatusIntakeDeferredFormat = "shell.notice.intakeDeferredFormat";
+        public const string StatusIntakeMovedFormat = "shell.notice.intakeMovedFormat";
+        public const string StatusIntakeImportFailed = "shell.notice.intakeImportFailed";
         public const string DialogNameTitle = "shell.dialog.nameTitle";
         public const string DialogOk = "shell.dialog.ok";
         public const string DialogCancel = "shell.dialog.cancel";

@@ -49,6 +49,18 @@ namespace WorkspaceRestorer.Infrastructure
             return Engine.FolderPathFor(plan, allPlans, AppPaths.ApplicationPlansFolderRoot);
         }
 
+        /// <summary>找这份自启动方案实际所在的镜像文件夹（删除方案前调用）。</summary>
+        public static string FindFolderFor(ApplicationPlan plan, IList<ApplicationPlan> allPlans)
+        {
+            return Engine.FindFolderFor(plan, allPlans, AppPaths.ApplicationPlansFolderRoot);
+        }
+
+        /// <summary>删除一份自启动方案自己的镜像文件夹；调用前必须已经把数据写进回收站。</summary>
+        public static bool DeleteFolderAt(string directory)
+        {
+            return Engine.DeleteFolderAt(directory, AppPaths.ApplicationPlansFolderRoot);
+        }
+
         public static string ReadPlanIdAt(string dataPath)
         {
             return PlanMirrorFile.ReadIdAt<ApplicationPlan>(dataPath);

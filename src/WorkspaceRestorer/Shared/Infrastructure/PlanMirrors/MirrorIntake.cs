@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using WorkspaceRestorer.Core.Cards.PlanFolders;
 
@@ -11,11 +12,12 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
     /// 用户的实际用法（2026-11-20 提的）：把一整个方案文件夹从别的电脑 /
     /// 另一套目录结构复制进 `workflows\...\`，重启程序就应该能看到它。
     /// 所以启动时先扫一遍镜像根：
-    ///  · 能读出来、Id 也不在清单里 → 让用户确认后**收编**进清单（只新增，不改已有）；
+    ///  · 能读出来、Id 也不在清单里 → 让用户三选一：导入 / 暂不导入 / 移到“无法识别”；
     ///  · 读不出来（没有 方案.json / JSON 坏了 / 没有 Id）→ **搬**到 `备份\无法识别\&lt;工作区&gt;\`，
     ///    永不删除；用户还可以去那里手动翻出来。
     ///
     /// 收编是“只读 + 追加”：不动清单里已有的方案，也不改已经在用的文件夹名。
+    /// 用户选「暂不导入」只记到本次 Windows 登录会话；重启后再问，文件夹内容变了也再问。
     /// </summary>
     internal sealed class MirrorIntakeFolder<T> where T : class, IPlanFolderNode
     {
@@ -26,8 +28,14 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
 
     internal static class MirrorIntake
     {
-        /// <summary>用户选了「否」之后记住“这个文件夹我就不要导”的清单文件（放在数据根）。</summary>
+        /// <summary>用户说过“不要导入”的清单文件（放在数据根）。</summary>
         private const string IgnoreFileName = ".mirror-intake.txt";
+
+        /// <summary>永久忽略：删除方案后文件夹没删掉等场景，内容不变就不再问。</summary>
+        private const string PermanentPrefix = "P|";
+
+        /// <summary>暂不导入：只在写入时的这次 Windows 登录会话里生效，重启后重新问。</summary>
+        private const string DeferredPrefix = "D|";
 
         private const int MaxDepth = 32;
 
@@ -172,16 +180,210 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
                 for (int index = 0; index < lines.Length; index++)
                 {
                     string line = lines[index];
-                    if (!string.IsNullOrWhiteSpace(line))
+                    if (!string.IsNullOrWhiteSpace(line)
+                        && (line.StartsWith(PermanentPrefix, StringComparison.OrdinalIgnoreCase)
+                            || line.StartsWith(DeferredPrefix, StringComparison.OrdinalIgnoreCase)))
                     {
                         ignored.Add(line.Trim());
                     }
+                    // 旧版没有 P|/D| 前缀的记录直接作废：升级后让用户用新的三选一重新决定一次。
                 }
             }
             catch
             {
             }
             return ignored;
+        }
+
+        /// <summary>
+        /// 删除方案后镜像文件夹没删掉（被占用等）时，把它的当前签名记成“永久不要导入”，
+        /// 避免下次启动把它又当成新方案问一遍。内容变了仍会重新问。
+        /// </summary>
+        public static void RememberIgnored(string kind, string directory)
+        {
+            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+            {
+                return;
+            }
+            try
+            {
+                HashSet<string> ignored = LoadIgnored();
+                string record = PermanentPrefix + Signature(kind, directory);
+                if (ignored.Add(record))
+                {
+                    SaveIgnored(ignored);
+                }
+            }
+            catch (Exception exception)
+            {
+                AppLog.Write("记录“不要导入”签名失败（不影响程序使用）。", exception);
+            }
+        }
+
+        /// <summary>
+        /// 用户选择「暂不导入」：把当前签名记到本次登录会话。
+        /// 同一次开机内不再问；重启（登录会话变化）或文件夹内容变化后会重新问。
+        /// 不直接写盘，由调用方对一批候选统一 SaveIgnored。
+        /// </summary>
+        public static void Defer(string kind, string directory, HashSet<string> ignored)
+        {
+            if (ignored == null || string.IsNullOrWhiteSpace(directory))
+            {
+                return;
+            }
+            string signature = Signature(kind, directory);
+            RemoveDeferredEntries(ignored, signature);
+            ignored.Add(DeferredPrefix + signature + "|" + CurrentSessionKey());
+        }
+
+        /// <summary>
+        /// 导入或移走之后清掉这个文件夹的忽略/暂不导入记录。
+        /// 不直接写盘，由调用方统一 SaveIgnored。
+        /// </summary>
+        public static void Forget(string kind, string directory, HashSet<string> ignored)
+        {
+            if (ignored == null || string.IsNullOrWhiteSpace(directory))
+            {
+                return;
+            }
+            // 导入/移走会改变目录名或最后写入时间，不能只用当前 Signature 精确匹配；
+            // 按“工作区 + 相对路径”清掉这个文件夹的所有旧记录（不同时间戳、不同会话）。
+            string prefix = SignaturePrefix(kind, directory);
+            List<string> remove = new List<string>();
+            foreach (string record in ignored)
+            {
+                string body = StripRecordPrefix(record);
+                if (!string.IsNullOrEmpty(body)
+                    && body.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    remove.Add(record);
+                }
+            }
+            for (int index = 0; index < remove.Count; index++)
+            {
+                ignored.Remove(remove[index]);
+            }
+        }
+
+        private static string StripRecordPrefix(string record)
+        {
+            if (string.IsNullOrEmpty(record))
+            {
+                return record;
+            }
+            if (record.StartsWith(PermanentPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return record.Substring(PermanentPrefix.Length);
+            }
+            if (record.StartsWith(DeferredPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return record.Substring(DeferredPrefix.Length);
+            }
+            return record;
+        }
+
+        /// <summary>
+        /// 把父文件夹和子文件夹同时出现在候选里时，只保留最外层父文件夹。
+        /// 返回顺序保持原候选顺序；被父文件夹带走的子文件夹不再单独操作。
+        /// </summary>
+        public static List<MirrorIntakeFolder<T>> SelectTopMostFolders<T>(
+            IList<MirrorIntakeFolder<T>> folders)
+            where T : class, IPlanFolderNode
+        {
+            List<MirrorIntakeFolder<T>> result = new List<MirrorIntakeFolder<T>>();
+            if (folders == null || folders.Count == 0)
+            {
+                return result;
+            }
+
+            // 先按路径长度从短到长判断，保证父文件夹先进入 accepted；
+            // 最后再按原顺序输出，日志和界面顺序不跳。
+            List<MirrorIntakeFolder<T>> ordered = new List<MirrorIntakeFolder<T>>();
+            for (int index = 0; index < folders.Count; index++)
+            {
+                if (folders[index] != null)
+                {
+                    ordered.Add(folders[index]);
+                }
+            }
+            ordered.Sort(delegate(MirrorIntakeFolder<T> left, MirrorIntakeFolder<T> right)
+            {
+                int lengthCompare = NormalizePath(left.Directory).Length.CompareTo(
+                    NormalizePath(right.Directory).Length);
+                return lengthCompare != 0
+                    ? lengthCompare
+                    : string.Compare(left.Directory, right.Directory, StringComparison.OrdinalIgnoreCase);
+            });
+
+            HashSet<string> accepted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int index = 0; index < ordered.Count; index++)
+            {
+                string path = NormalizePath(ordered[index].Directory);
+                bool covered = false;
+                foreach (string parent in accepted)
+                {
+                    if (IsAncestorPath(parent, path))
+                    {
+                        covered = true;
+                        break;
+                    }
+                }
+                if (!covered)
+                {
+                    accepted.Add(path);
+                }
+            }
+
+            for (int index = 0; index < folders.Count; index++)
+            {
+                if (folders[index] != null
+                    && accepted.Contains(NormalizePath(folders[index].Directory)))
+                {
+                    result.Add(folders[index]);
+                }
+            }
+            return result;
+        }
+
+        private static void RemoveDeferredEntries(HashSet<string> ignored, string signature)
+        {
+            string prefix = DeferredPrefix + signature + "|";
+            List<string> remove = new List<string>();
+            foreach (string record in ignored)
+            {
+                if (!string.IsNullOrEmpty(record)
+                    && record.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    remove.Add(record);
+                }
+            }
+            for (int index = 0; index < remove.Count; index++)
+            {
+                ignored.Remove(remove[index]);
+            }
+        }
+
+        private static bool IsAncestorPath(string parent, string child)
+        {
+            if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(child))
+            {
+                return false;
+            }
+            string parentPath = parent.TrimEnd(Path.DirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            return child.Length > parentPath.Length
+                && child.StartsWith(parentPath, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string CurrentSessionKey()
+        {
+            string session = AppPaths.LogonSessionId;
+            if (!string.IsNullOrWhiteSpace(session))
+            {
+                return session.Trim();
+            }
+            // 极少数拿不到 LUID 的环境：退回本次开机时间，仍能跨程序重启保持稳定。
+            return "boot:" + AppPaths.BootTime.Ticks.ToString(CultureInfo.InvariantCulture);
         }
 
         public static void SaveIgnored(HashSet<string> signatures)
@@ -210,6 +412,24 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
         /// <summary>文件夹签名：工作区 + 相对路径 + 最后写入时间。任一处变了就重新问一次。</summary>
         public static string Signature(string kind, string directory)
         {
+            string relative = RelativePath(directory);
+            try
+            {
+                return kind + "|" + relative + "|" + Directory.GetLastWriteTimeUtc(directory).Ticks;
+            }
+            catch
+            {
+                return kind + "|" + relative;
+            }
+        }
+
+        private static string SignaturePrefix(string kind, string directory)
+        {
+            return kind + "|" + RelativePath(directory) + "|";
+        }
+
+        private static string RelativePath(string directory)
+        {
             string relative = directory ?? string.Empty;
             try
             {
@@ -219,12 +439,11 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
                 {
                     relative = relative.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar);
                 }
-                return kind + "|" + relative + "|" + Directory.GetLastWriteTimeUtc(directory).Ticks;
             }
             catch
             {
-                return kind + "|" + relative;
             }
+            return relative;
         }
 
         /// <summary>按签名过滤掉用户已经明确说过“不要”的文件夹。</summary>
@@ -249,7 +468,7 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
                     continue;
                 }
                 string signature = Signature(kind, folder.Directory);
-                if (ignored != null && ignored.Contains(signature))
+                if (IsIgnored(ignored, kind, folder.Directory))
                 {
                     skipped.Add(signature);
                     continue;
@@ -257,6 +476,20 @@ namespace WorkspaceRestorer.Infrastructure.PlanMirrors
                 result.Add(folder);
             }
             return result;
+        }
+
+        private static bool IsIgnored(HashSet<string> ignored, string kind, string directory)
+        {
+            if (ignored == null || ignored.Count == 0)
+            {
+                return false;
+            }
+            string signature = Signature(kind, directory);
+            if (ignored.Contains(PermanentPrefix + signature))
+            {
+                return true;
+            }
+            return ignored.Contains(DeferredPrefix + signature + "|" + CurrentSessionKey());
         }
 
         private static bool ScanDirectory<T>(

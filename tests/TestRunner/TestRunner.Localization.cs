@@ -28,7 +28,7 @@ namespace WorkspaceRestorer.Tests
                 AssertEqual("Theme", AppText.T(SettingsTextKeys.ThemeLabel));
                 AssertEqual("Preferences", AppText.T(SettingsTextKeys.NavPreferences));
                 AssertEqual("About", AppText.T(AboutTextKeys.Title));
-                AssertEqual("v1.0.0", AppText.F(AboutTextKeys.VersionFormat, AppInfo.Version));
+                AssertEqual("v" + AppInfo.Version, AppText.F(AboutTextKeys.VersionFormat, AppInfo.Version));
                 AssertEqual("Not configured", AppText.T(AboutTextKeys.NotConfigured));
                 AssertEqual("Opened your default mail app.", AppText.T(AboutTextKeys.EmailOpened));
                 AssertEqual(0, AppText.MissingKeys.Count);
@@ -178,6 +178,9 @@ namespace WorkspaceRestorer.Tests
                 AppText.Initialize(LanguageTags.EnUs);
                 AssertEqual("Confirm", AppText.T(ShellTextKeys.DialogConfirmTitle));
                 AssertEqual("Yes", AppText.T(ShellTextKeys.DialogYes));
+                AssertEqual("Import", AppText.T(ShellTextKeys.DialogIntakeImport));
+                AssertEqual("Not now", AppText.T(ShellTextKeys.DialogIntakeDefer));
+                AssertEqual("Move to Unrecognized", AppText.T(ShellTextKeys.DialogIntakeQuarantine));
                 AssertEqual("Search Profiles", AppText.T(ShellTextKeys.SearchDialogSearch));
                 AssertEqual("Copy", AppText.T(ShellTextKeys.TextMenuCopy));
                 AssertEqual("Shortcut feedback", AppText.T(ShellTextKeys.ShortcutFeedbackName));
@@ -185,6 +188,9 @@ namespace WorkspaceRestorer.Tests
 
                 AppText.Initialize(LanguageTags.ZhCn);
                 AssertEqual("请确认", AppText.T(ShellTextKeys.DialogConfirmTitle));
+                AssertEqual("导入", AppText.T(ShellTextKeys.DialogIntakeImport));
+                AssertEqual("暂不导入", AppText.T(ShellTextKeys.DialogIntakeDefer));
+                AssertEqual("移到“无法识别”", AppText.T(ShellTextKeys.DialogIntakeQuarantine));
                 AssertEqual("搜索方案", AppText.T(ShellTextKeys.SearchDialogSearch));
                 AssertEqual("复制", AppText.T(ShellTextKeys.TextMenuCopy));
             });
