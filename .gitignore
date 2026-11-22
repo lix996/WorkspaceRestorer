@@ -23,6 +23,9 @@
 !/scripts/Build.ps1
 !/scripts/Test.ps1
 !/scripts/Test-IdentityConsistency.ps1
+!/scripts/Package-Installer.ps1
+!/scripts/installer/
+!/scripts/installer/**
 !/scripts/说明模板/
 
 # 目录说明文件不上传
