@@ -262,7 +262,9 @@ namespace WorkspaceRestorer.UI
                 TextWrapping = TextWrapping.Wrap
             };
             LocalizedText.Text(layoutSummary, ShellTextKeys.LayoutSummary);
-            progressBar = new ProgressBar { Height = 6, Minimum = 0, Margin = new Thickness(0, 10, 0, 0), Foreground = AppTheme.Accent, Background = AppTheme.Border, Visibility = Visibility.Collapsed };
+            // 尺寸、对齐和“画在哪个卡片上”统一在 BuildContent 里设置；
+            // 这里只建控件和主题，避免两处各写一份位置。
+            progressBar = new ProgressBar { Height = 6, Minimum = 0, Foreground = AppTheme.Accent, Background = AppTheme.Border, Visibility = Visibility.Collapsed };
             // 这四个勾选框的文字由设置行提供：PrepareSettingsCheckBox 会把 Content 清空，
             // 避免设置行里重复显示同一个开关名字（无障碍名字仍由 AccessibleToolTip 提供）。
             autoStartCheckBox = new CheckBox { Margin = new Thickness(0, 10, 18, 0) };

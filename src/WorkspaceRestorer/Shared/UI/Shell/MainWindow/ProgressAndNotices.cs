@@ -71,7 +71,8 @@ namespace WorkspaceRestorer.UI
             }
             progressBar.Maximum = Math.Max(1, controller.ProgressMaximum);
             progressBar.Value = Math.Min(controller.ProgressValue, progressBar.Maximum);
-            // 只有正在恢复才显示进度条：它现在是一整行宽的细线，恢复完还留着会像一条多余的分隔线。
+            // 只有正在恢复才显示进度条：它现在盖在工作区卡片内部，不占布局行；
+            // 恢复完还留着会像一条横在页面上的多余细线。
             progressBar.Visibility = controller.IsRestoring ? Visibility.Visible : Visibility.Collapsed;
             if (!controller.IsRestoring)
             {

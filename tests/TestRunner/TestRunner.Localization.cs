@@ -490,23 +490,64 @@ namespace WorkspaceRestorer.Tests
                     window.Show();
                     window.UpdateLayout();
 
-                    // 【2026-11-15】恢复进度条回旧版顶部位置：临时显示一次，
-                    // 量它在窗口上部、宽 260，并留一张截图；随后收起，不影响后面的设置页截图。
+                    // 【2026-11-23】恢复进度条改成卡片内覆盖层：
+                    // 只允许有这一条；显示前后当前白卡的 Top/Height 不得变化；
+                    // 进度条必须落在卡片边框以内，并且不压住 18px 内边距下面的标题。
                     ProgressBar progress = typeof(MainWindow).GetField(
                         "progressBar",
                         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                         .GetValue(window) as ProgressBar;
                     Assert(progress != null, "找不到恢复进度条。");
+                    Assert(progress.Visibility == Visibility.Collapsed,
+                        "没有恢复任务时不应显示进度条，也不应留出占位。");
+                    Grid progressHost = progress.Parent as Grid;
+                    Assert(progressHost != null, "恢复进度条应作为工作区卡片的覆盖层，而不是独立行。");
+                    Border workspaceCard = null;
+                    int progressBarCount = 0;
+                    for (int index = 0; index < progressHost.Children.Count; index++)
+                    {
+                        Border border = progressHost.Children[index] as Border;
+                        if (border != null && border.Visibility == Visibility.Visible)
+                        {
+                            workspaceCard = border;
+                        }
+                        if (progressHost.Children[index] is ProgressBar)
+                        {
+                            progressBarCount++;
+                        }
+                    }
+                    Assert(workspaceCard != null, "找不到当前显示的工作区白卡。");
+                    AssertEqual(1, progressBarCount);
+                    Point cardBefore = workspaceCard.TranslatePoint(new Point(0.0, 0.0), window);
+                    double cardHeightBefore = workspaceCard.ActualHeight;
+
                     progress.Visibility = Visibility.Visible;
                     window.UpdateLayout();
                     Point progressPoint = progress.TranslatePoint(new Point(0.0, 0.0), window);
+                    Point cardAfter = workspaceCard.TranslatePoint(new Point(0.0, 0.0), window);
+                    Assert(Math.Abs(cardAfter.Y - cardBefore.Y) <= 0.01,
+                        "进度条显示后工作区白卡被顶下去了：前 Y=" + cardBefore.Y.ToString("0.0")
+                        + "，后 Y=" + cardAfter.Y.ToString("0.0"));
+                    Assert(Math.Abs(workspaceCard.ActualHeight - cardHeightBefore) <= 0.01,
+                        "进度条显示后工作区白卡被压矮了：前高=" + cardHeightBefore.ToString("0.0")
+                        + "，后高=" + workspaceCard.ActualHeight.ToString("0.0"));
                     Assert(progressPoint.Y < 120.0,
-                        "恢复进度条应回到窗口上部，实际 Y=" + progressPoint.Y.ToString("0.0"));
+                        "恢复进度条应在窗口上部，实际 Y=" + progressPoint.Y.ToString("0.0"));
                     Assert(Math.Abs(progress.ActualWidth - 260.0) <= 1.0,
                         "恢复进度条宽度应为 260，实际 " + progress.ActualWidth.ToString("0.0"));
-                    Console.WriteLine("恢复进度条截图：" + SaveWindowScreenshot(window, "csk-progress-top.png"));
+                    Assert(progressPoint.X >= cardAfter.X
+                        && progressPoint.X + progress.ActualWidth <= cardAfter.X + workspaceCard.ActualWidth + 0.01,
+                        "恢复进度条超出了工作区白卡的左右边界。");
+                    Assert(progressPoint.Y >= cardAfter.Y
+                        && progressPoint.Y + progress.ActualHeight <= cardAfter.Y + workspaceCard.Padding.Top + 0.01,
+                        "恢复进度条应完全落在白卡顶部内边距内，不能盖住标题。");
+                    Console.WriteLine("恢复进度条截图：" + SaveWindowScreenshot(window, "csk-progress-in-card.png"));
                     progress.Visibility = Visibility.Collapsed;
                     window.UpdateLayout();
+                    Point cardHidden = workspaceCard.TranslatePoint(new Point(0.0, 0.0), window);
+                    Assert(Math.Abs(cardHidden.Y - cardBefore.Y) <= 0.01
+                        && Math.Abs(workspaceCard.ActualHeight - cardHeightBefore) <= 0.01,
+                        "进度条收起后工作区白卡尺寸没有回到原值。");
 
                     Button settingsButton = FindButtonByAutomationName(window, "设置");
                     Assert(settingsButton != null, "找不到左下角“设置”按钮。");

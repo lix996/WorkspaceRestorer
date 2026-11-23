@@ -192,16 +192,14 @@ namespace WorkspaceRestorer.UI
 
             // 【2026-11-15 用户要求】两张卡片按临时绘图脚本的坐标紧贴：间距 0，
             // 左栏宽 220 不变；状态条左边距同步为 0。
+            // 【2026-11-23 用户要求】恢复进度条必须画在工作区白卡内部，而且显示/隐藏
+            // 不能把页面挤矮。这里不再给进度条单独留一行，只保留工作区这一层。
             Grid main = new Grid { Margin = new Thickness(0, 0, 0, 0) };
-            // 第 0 行是恢复进度条的全局位置（平时进度条 Collapsed，不占高度）；
-            // 第 1 行才是工作区内容。旧版进度条就在“工作空间”标题下方的右上角。
-            main.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            main.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             Grid.SetColumn(main, 1);
             root.Children.Add(main);
 
             // 【2026-11-15 用户要求】去掉顶部“工作空间”公共标题：它不产生任何操作，
-            // 只占画面。状态文字仍在最下面；恢复进度条放回工作区上方的旧位置。
+            // 只占画面。状态文字仍在最下面；恢复进度条改到卡片内部（见下方 workspaces 覆盖层）。
             StackPanel statusDock = new StackPanel { Margin = new Thickness(0, 8, 0, 0) };
             Grid statusRow = new Grid { VerticalAlignment = VerticalAlignment.Center };
             statusRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -214,25 +212,12 @@ namespace WorkspaceRestorer.UI
             Grid.SetColumn(statusText, 1);
             statusRow.Children.Add(statusText);
             statusDock.Children.Add(statusRow);
-            // 【2026-11-15 用户要求】恢复进度条回旧版顶部位置：
-            // 旧版在“工作空间”标题行右上角、260 宽；现在标题已删，保留一条全局顶行。
-            // 平时 Visibility=Collapsed，不占高度；恢复时所有工作区都在同一位置出现。
-            Grid topProgress = new Grid { VerticalAlignment = VerticalAlignment.Top };
-            progressBar.Width = 260;
-            progressBar.Height = 6;
-            progressBar.Margin = new Thickness(0, 0, 0, 8);
-            progressBar.HorizontalAlignment = HorizontalAlignment.Right;
-            progressBar.VerticalAlignment = VerticalAlignment.Center;
-            topProgress.Children.Add(progressBar);
-            Grid.SetRow(topProgress, 0);
-            main.Children.Add(topProgress);
             // 状态条只占右列底部，左栏不跟着变矮。
             Grid.SetColumn(statusDock, 1);
             Grid.SetRow(statusDock, 1);
             root.Children.Add(statusDock);
 
             Grid workspaces = new Grid { Margin = new Thickness(0) };
-            Grid.SetRow(workspaces, 1);
             main.Children.Add(workspaces);
 
             Border startupWorkspace = BuildStartupWorkspace();
@@ -245,6 +230,19 @@ namespace WorkspaceRestorer.UI
             workspaces.Children.Add(applicationsWorkspace);
             workspaces.Children.Add(settingsWorkspace);
             workspaces.Children.Add(recycleBinWorkspace);
+
+            // 【2026-11-23 用户要求】恢复进度条只保留现在这一条，不新建、不给别的页面补。
+            // 它作为 workspaces 的覆盖层画在当前白卡内部顶部：6px 高 + 6px 顶距，
+            // 落在卡片 18px 的内边距里，不会盖住标题；右边留 18px 避开圆角。
+            // 覆盖层不参与布局，所以显示/隐藏都不会再压缩页面高度。
+            progressBar.Width = 260;
+            progressBar.Height = 6;
+            progressBar.Margin = new Thickness(0, 6, 18, 0);
+            progressBar.HorizontalAlignment = HorizontalAlignment.Right;
+            progressBar.VerticalAlignment = VerticalAlignment.Top;
+            progressBar.IsHitTestVisible = false;
+            Panel.SetZIndex(progressBar, 10);
+            workspaces.Children.Add(progressBar);
 
             // 用户要求（2026-10-10 19:52）：“点击到回收站时，也要像其他三个的代码一样常驻亮。”
             // 真因：回收站按钮原来**没进这个数组**，点它时 ShowWorkspace 拿到的 selectedButton 是 null，
